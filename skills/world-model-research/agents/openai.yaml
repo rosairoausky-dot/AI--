@@ -1,0 +1,4 @@
+interface:
+  display_name: World Model Research
+  short_description: Update sourced world-model company and talent maps
+  default_prompt: Update the world-model map using primary sources, separate application schools from cross-cutting capabilities, and refresh the standalone HTML output.

@@ -1,0 +1,603 @@
+<div id="wm-talent-map">
+  <style>
+    #wm-talent-map { color: var(--foreground); background: var(--background); padding: 28px 18px 52px; font-size: calc(var(--font-size-base) * 1.05); }
+    #wm-talent-map * { box-sizing: border-box; }
+    #wm-talent-map .wm-shell { max-width: 1400px; margin: 0 auto; }
+    #wm-talent-map .wm-kicker { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); margin-bottom: 12px; }
+    #wm-talent-map h1, #wm-talent-map h2, #wm-talent-map h3, #wm-talent-map p { margin-top: 0; }
+    #wm-talent-map h1 { margin-bottom: 10px; }
+    #wm-talent-map .wm-lead { max-width: 960px; color: var(--muted-foreground); margin-bottom: 24px; }
+    #wm-talent-map .wm-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 24px; }
+    #wm-talent-map .wm-stat { padding: 16px 18px; border-top: 3px solid var(--viz-series-1); }
+    #wm-talent-map .wm-stat:nth-child(2) { border-top-color: var(--viz-series-2); }
+    #wm-talent-map .wm-stat:nth-child(3) { border-top-color: var(--viz-series-4); }
+    #wm-talent-map .wm-stat:nth-child(4) { border-top-color: var(--viz-series-5); }
+    #wm-talent-map .wm-stat strong { display:block; font-size: 1.65em; font-weight: 500; margin-bottom: 2px; }
+    #wm-talent-map .wm-stat span { color: var(--muted-foreground); }
+    #wm-talent-map .wm-controls { margin: 16px 0 22px; align-items: end; gap: 12px; }
+    #wm-talent-map .wm-controls .form-label { min-width: 220px; flex: 1; }
+    #wm-talent-map .wm-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+    #wm-talent-map .wm-school-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    #wm-talent-map .wm-school { padding:20px; border-left:4px solid var(--school-color,var(--viz-series-1)); background:color-mix(in srgb, var(--school-color,var(--viz-series-1)) 7%, var(--card)); }
+    #wm-talent-map .wm-school:first-child { grid-column:1 / -1; }
+    #wm-talent-map .wm-school-head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+    #wm-talent-map .wm-school-head h3 { margin-bottom:5px; }
+    #wm-talent-map .wm-school-index { color:var(--muted-foreground); white-space:nowrap; }
+    #wm-talent-map .wm-school-question { margin:12px 0; padding:10px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    #wm-talent-map .wm-school-teams { display:flex; flex-wrap:wrap; gap:8px; }
+    #wm-talent-map .wm-school-team { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--background); color:var(--foreground); padding:7px 10px; cursor:pointer; }
+    #wm-talent-map .wm-school-team:hover { background:var(--accent); color:var(--accent-foreground); }
+    #wm-talent-map .wm-school-note-toggle { margin-top:14px; }
+    #wm-talent-map .wm-school-editor { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+    #wm-talent-map .wm-method { margin:0 0 24px; padding:16px 18px; border-left:3px solid var(--viz-series-6); background:color-mix(in srgb, var(--viz-series-6) 8%, var(--card)); }
+    #wm-talent-map .wm-method strong { font-weight:500; }
+    #wm-talent-map .wm-method p { margin:0 0 8px; }
+    #wm-talent-map .wm-method p:last-child { margin-bottom:0; color:var(--muted-foreground); }
+    #wm-talent-map .wm-layers { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    #wm-talent-map .wm-layer { padding:14px; border-top:2px solid var(--layer-color,var(--viz-series-1)); background:color-mix(in srgb, var(--layer-color,var(--viz-series-1)) 7%, var(--card)); }
+    #wm-talent-map .wm-layer h3 { font-size:1em; margin-bottom:5px; }
+    #wm-talent-map .wm-layer p { color:var(--muted-foreground); margin:0; }
+    #wm-talent-map .wm-layer .wm-school-note-toggle { margin-top:10px; }
+    #wm-talent-map .wm-company-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    #wm-talent-map .wm-company { padding:20px; border-top:3px solid var(--company-color,var(--viz-series-1)); }
+    #wm-talent-map .wm-company-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    #wm-talent-map .wm-company-head h3 { margin-bottom:4px; }
+    #wm-talent-map .wm-company-fields { display:grid; grid-template-columns:110px 1fr; gap:8px 12px; margin:16px 0; }
+    #wm-talent-map .wm-company-fields dt { color:var(--muted-foreground); }
+    #wm-talent-map .wm-company-fields dd { margin:0; }
+    #wm-talent-map .wm-maturity { display:inline-flex; align-items:center; gap:6px; color:var(--muted-foreground); }
+    #wm-talent-map .wm-maturity::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--company-color,var(--viz-series-1)); }
+    #wm-talent-map .wm-stage-list { position:relative; margin-left:12px; padding-left:30px; border-left:2px solid var(--border); }
+    #wm-talent-map .wm-stage { position:relative; padding:0 0 26px 10px; }
+    #wm-talent-map .wm-stage::before { content:""; position:absolute; left:-37px; top:2px; width:12px; height:12px; border-radius:50%; background:var(--stage-color,var(--viz-series-1)); box-shadow:0 0 0 5px var(--background); }
+    #wm-talent-map .wm-stage h3 { margin-bottom:5px; }
+    #wm-talent-map .wm-stage-signals { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+    #wm-talent-map .wm-section { margin: 0 0 38px; }
+    #wm-talent-map .wm-section-head { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:14px; }
+    #wm-talent-map .wm-section-head h2 { margin-bottom:0; }
+    #wm-talent-map .wm-section-head span { color:var(--muted-foreground); }
+    #wm-talent-map .wm-matrix-wrap { overflow-x:auto; border-top:2px solid var(--border); border-bottom:1px solid var(--border); }
+    #wm-talent-map table { width:100%; border-collapse:collapse; min-width:1020px; }
+    #wm-talent-map th, #wm-talent-map td { padding:14px 12px; text-align:center; border-bottom:1px solid var(--border); }
+    #wm-talent-map th { color:var(--muted-foreground); font-weight:500; background:color-mix(in srgb, var(--muted) 48%, transparent); }
+    #wm-talent-map th:first-child, #wm-talent-map td:first-child { text-align:left; width:280px; }
+    #wm-talent-map tbody tr:last-child td { border-bottom:0; }
+    #wm-talent-map tbody tr:hover { background:var(--accent); color:var(--accent-foreground); }
+    #wm-talent-map .wm-team-btn { border:0; background:transparent; color:var(--foreground); padding:0; text-align:left; cursor:pointer; }
+    #wm-talent-map .wm-team-btn small { display:block; color:var(--muted-foreground); margin-top:2px; }
+    #wm-talent-map .wm-dot { width:14px; height:14px; border-radius:50%; display:inline-block; background:var(--muted); border:1px solid var(--border); }
+    #wm-talent-map .wm-dot.on { background:var(--viz-series-1); border-color:transparent; box-shadow:0 0 0 3px color-mix(in srgb, var(--viz-series-1) 16%, transparent); }
+    #wm-talent-map .wm-dot.secondary { background:var(--viz-series-4); border-color:transparent; }
+    #wm-talent-map .wm-map { display:grid; grid-template-columns:minmax(320px,.8fr) minmax(0,1.65fr); gap:24px; }
+    #wm-talent-map .wm-team-list { border-top:1px solid var(--border); }
+    #wm-talent-map .wm-team-row { display:grid; grid-template-columns:42px 1fr auto; gap:12px; align-items:center; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border); background:transparent; color:var(--foreground); padding:14px 8px; cursor:pointer; }
+    #wm-talent-map .wm-team-row:hover { background:var(--accent); color:var(--accent-foreground); }
+    #wm-talent-map .wm-team-row.is-selected { background:color-mix(in srgb, var(--viz-series-1) 18%, var(--background)); color:var(--foreground); box-shadow:inset 4px 0 0 var(--viz-series-1); }
+    #wm-talent-map .wm-team-row.is-selected strong { color:var(--foreground); }
+    #wm-talent-map .wm-mark { width:38px; height:38px; border-radius:50%; background:color-mix(in srgb, var(--viz-series-4) 28%, transparent); display:grid; place-items:center; font-weight:500; }
+    #wm-talent-map .wm-team-row small { color:var(--muted-foreground); display:block; }
+    #wm-talent-map .wm-team-row .wm-count { color:var(--muted-foreground); }
+    #wm-talent-map .wm-detail { padding:24px; min-height:430px; border-top:3px solid var(--viz-series-1); }
+    #wm-talent-map .wm-detail-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    #wm-talent-map .wm-detail h3 { margin-bottom:4px; }
+    #wm-talent-map .wm-tags { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 18px; }
+    #wm-talent-map .wm-tag { padding:5px 10px; border-radius:999px; background:var(--secondary); color:var(--secondary-foreground); }
+    #wm-talent-map .wm-evidence { padding-left:20px; margin:12px 0 18px; }
+    #wm-talent-map .wm-evidence li { margin-bottom:9px; }
+    #wm-talent-map .wm-evidence li::marker { color:var(--viz-series-1); }
+    #wm-talent-map .wm-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px 22px; margin:18px 0 22px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    #wm-talent-map .wm-fact { display:grid; grid-template-columns:104px 1fr; gap:10px; padding:11px 0; border-bottom:1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+    #wm-talent-map .wm-fact:nth-last-child(-n+2) { border-bottom:0; }
+    #wm-talent-map .wm-fact dt { color:var(--muted-foreground); }
+    #wm-talent-map .wm-fact dd { margin:0; }
+    #wm-talent-map .wm-roster { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    #wm-talent-map .wm-person-chip { border:1px solid var(--border); background:transparent; color:var(--foreground); border-radius:999px; padding:4px 8px; cursor:pointer; }
+    #wm-talent-map .wm-person-chip:hover { background:var(--accent); color:var(--accent-foreground); }
+    #wm-talent-map .wm-notes { --note-color:var(--viz-series-5); margin-top:24px; padding:18px; background:color-mix(in srgb, var(--note-color) 10%, var(--card)); border-left:4px solid var(--note-color); }
+    #wm-talent-map .wm-notes-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    #wm-talent-map .wm-notes-title { display:flex; align-items:center; gap:8px; }
+    #wm-talent-map .wm-notes-title h3 { margin:0; }
+    #wm-talent-map .wm-note-status { color:var(--muted-foreground); }
+    #wm-talent-map .wm-note-actions { display:flex; align-items:center; gap:10px; margin-top:10px; }
+    #wm-talent-map .wm-note-actions .wm-note-status { margin-right:auto; }
+    #wm-talent-map .wm-color-picker { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; }
+    #wm-talent-map .wm-color-picker > span { color:var(--muted-foreground); margin-right:2px; }
+    #wm-talent-map .wm-color-swatch { width:28px; height:28px; padding:0; border:2px solid transparent; border-radius:50%; background:var(--swatch); cursor:pointer; }
+    #wm-talent-map .wm-color-swatch[aria-pressed="true"] { border-color:var(--foreground); box-shadow:0 0 0 2px var(--background) inset; }
+    #wm-talent-map .wm-notebook { display:grid; grid-template-columns:minmax(300px,.7fr) minmax(0,1.3fr); gap:24px; }
+    #wm-talent-map .wm-note-index { border-top:1px solid var(--border); }
+    #wm-talent-map .wm-note-index button { width:100%; display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; padding:12px 6px; border:0; border-bottom:1px solid var(--border); background:transparent; color:var(--foreground); text-align:left; cursor:pointer; }
+    #wm-talent-map .wm-note-index button:hover, #wm-talent-map .wm-note-index button.is-selected { background:var(--accent); color:var(--accent-foreground); }
+    #wm-talent-map .wm-note-dot { width:10px; height:10px; border-radius:50%; background:var(--note-color,var(--viz-series-5)); }
+    #wm-talent-map .wm-note-preview { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted-foreground); }
+    #wm-talent-map .wm-people { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    #wm-talent-map .wm-person { padding:20px; display:flex; flex-direction:column; gap:11px; min-height:280px; border-top:2px solid color-mix(in srgb, var(--viz-series-2) 68%, transparent); }
+    #wm-talent-map .wm-person-head { display:flex; gap:12px; align-items:center; }
+    #wm-talent-map .wm-avatar { width:44px; height:44px; border-radius:50%; background:color-mix(in srgb, var(--viz-series-2) 22%, transparent); display:grid; place-items:center; font-weight:500; flex:0 0 auto; }
+    #wm-talent-map .wm-person h3 { margin:0; }
+    #wm-talent-map .wm-person .wm-role { color:var(--muted-foreground); }
+    #wm-talent-map .wm-person p { margin:0; }
+    #wm-talent-map .wm-person-details { display:grid; grid-template-columns:86px 1fr; gap:7px 10px; margin:2px 0; }
+    #wm-talent-map .wm-person-details dt { color:var(--muted-foreground); }
+    #wm-talent-map .wm-person-details dd { margin:0; }
+    #wm-talent-map .wm-person-foot { margin-top:auto; display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    #wm-talent-map .wm-confidence { display:inline-flex; align-items:center; gap:5px; color:var(--muted-foreground); }
+    #wm-talent-map .wm-confidence::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--viz-series-1); }
+    #wm-talent-map .wm-confidence.project::before { background:var(--viz-series-3); }
+    #wm-talent-map .wm-confidence.pending::before { background:var(--muted-foreground); }
+    #wm-talent-map .wm-source-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 24px; border-top:1px solid var(--border); padding-top:16px; }
+    #wm-talent-map .wm-source-grid a { overflow-wrap:anywhere; }
+    #wm-talent-map .wm-note { color:var(--muted-foreground); margin-top:12px; }
+    #wm-talent-map .wm-empty { padding:26px 0; color:var(--muted-foreground); }
+    #wm-talent-map a { color:var(--foreground); text-decoration-color:var(--border); text-underline-offset:3px; }
+    #wm-talent-map [hidden] { display:none !important; }
+    @media (max-width:1040px) {
+      #wm-talent-map .wm-map { grid-template-columns:1fr; }
+      #wm-talent-map .wm-notebook { grid-template-columns:1fr; }
+      #wm-talent-map .wm-company-grid { grid-template-columns:1fr; }
+      #wm-talent-map .wm-people { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #wm-talent-map .wm-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #wm-talent-map .wm-source-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:520px) {
+      #wm-talent-map { padding:16px 8px 32px; }
+      #wm-talent-map .wm-people, #wm-talent-map .wm-source-grid { grid-template-columns:1fr; }
+      #wm-talent-map .wm-school-grid { grid-template-columns:1fr; }
+      #wm-talent-map .wm-layers { grid-template-columns:1fr; }
+      #wm-talent-map .wm-school:first-child { grid-column:auto; }
+      #wm-talent-map .wm-section-head { align-items:flex-start; flex-direction:column; }
+      #wm-talent-map .wm-detail-top { flex-direction:column; }
+      #wm-talent-map .wm-notes-head { align-items:flex-start; flex-direction:column; }
+      #wm-talent-map .wm-facts { grid-template-columns:1fr; }
+      #wm-talent-map .wm-fact:nth-last-child(-n+2) { border-bottom:1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+      #wm-talent-map .wm-fact:last-child { border-bottom:0; }
+      #wm-talent-map .wm-person-details { grid-template-columns:1fr; gap:2px; }
+    }
+  </style>
+
+  <div class="wm-shell">
+    <div class="wm-kicker"><i data-lucide="network" aria-hidden="true"></i><span>中国生成式世界模型 · 公开资料版</span></div>
+    <h1>人才地图与团队能力谱系</h1>
+    <p class="wm-lead">围绕游戏世界模型、多模态控制、实时视频、蒸馏加速、空间布局、长视频与空间记忆，区分项目署名、个人履历和待核实线索。</p>
+
+    <div class="wm-stats">
+      <div class="card wm-stat"><strong>18</strong><span>团队 / 组织节点</span></div>
+      <div class="card wm-stat"><strong>4</strong><span>应用导向流派</span></div>
+      <div class="card wm-stat"><strong id="wm-author-count">—</strong><span>公开署名作者</span></div>
+      <div class="card wm-stat"><strong id="wm-profile-count">—</strong><span>已核验深度履历</span></div>
+    </div>
+
+    <div class="viz-controls wm-controls">
+      <label class="form-label">搜索团队或人才<input id="wm-search" class="form-control" type="search" placeholder="例如：赵敏、Causal Forcing、空间记忆"></label>
+      <label class="form-label">技术方向<select id="wm-track" class="form-select"><option value="all">全部方向</option></select></label>
+      <label class="form-label">证据等级<select id="wm-level" class="form-select"><option value="all">全部证据</option><option value="verified">已核验履历</option><option value="project">项目 / 论文确认</option><option value="pending">关联待核实</option></select></label>
+    </div>
+
+    <div class="wm-tabs" role="tablist" aria-label="地图视图">
+      <button class="btn btn-primary" type="button" data-view="schools" aria-selected="true">流派图谱</button>
+      <button class="btn" type="button" data-view="matrix" aria-selected="false">能力矩阵</button>
+      <button class="btn" type="button" data-view="map" aria-selected="false">团队网络</button>
+      <button class="btn" type="button" data-view="companies" aria-selected="false">公司与产品</button>
+      <button class="btn" type="button" data-view="evolution" aria-selected="false">发展脉络</button>
+      <button class="btn" type="button" data-view="people" aria-selected="false">人才档案</button>
+      <button class="btn" type="button" data-view="notebook" aria-selected="false"><i data-lucide="notebook-pen" aria-hidden="true"></i> 笔记工作台</button>
+    </div>
+
+    <section id="wm-view-schools" class="wm-section">
+      <div class="wm-method"><p><strong>分类口径：应用导向，而非严格技术架构。</strong> 一个团队可以同时覆盖多个应用场景；页面用主流派帮助从产品和产业视角浏览，再用能力矩阵查看技术交叉。</p><p><strong>证据边界：</strong>公开论文、官网、GitHub 和媒体资料按“履历核验 / 项目确认 / 关联待核实”分级；信息会随团队发布和人员流动持续更新。</p></div>
+      <div class="wm-section-head"><h2>应用导向流派</h2><span>先看世界模型要服务什么，再下钻团队与人才</span></div>
+      <div id="wm-school-grid" class="wm-school-grid"></div>
+      <div class="wm-section-head" style="margin-top:28px"><h2>跨流派能力层</h2><span>这些是共性技术难题，不单独作为应用赛道</span></div>
+      <div id="wm-crosscutting" class="wm-layers"></div>
+    </section>
+
+    <section id="wm-view-matrix" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>团队能力矩阵</h2><span>圆点表示官方项目或论文直接覆盖；弱色表示相邻能力</span></div>
+      <div class="wm-matrix-wrap"><table><thead><tr id="wm-matrix-head"><th>团队 / 项目</th></tr></thead><tbody id="wm-matrix-body"></tbody></table></div>
+    </section>
+
+    <section id="wm-view-map" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>团队网络</h2><span>选择团队查看证据、核心人才与完整署名</span></div>
+      <div class="wm-map"><div id="wm-team-list" class="wm-team-list"></div><article id="wm-detail" class="card wm-detail" aria-live="polite"></article></div>
+    </section>
+
+    <section id="wm-view-people" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>核心人才档案</h2><span id="wm-result-count"></span></div>
+      <div id="wm-people" class="wm-people"></div>
+    </section>
+
+    <section id="wm-view-companies" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>公司业务与产品地图</h2><span id="wm-company-count"></span></div>
+      <div id="wm-company-grid" class="wm-company-grid"></div>
+    </section>
+
+    <section id="wm-view-evolution" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>世界模型发展脉络</h2><span>按能力成熟阶段组织，不把单次发布等同产业成熟</span></div>
+      <div id="wm-stage-list" class="wm-stage-list"></div>
+    </section>
+
+    <section id="wm-view-notebook" class="wm-section" hidden>
+      <div class="wm-section-head"><h2>笔记工作台</h2><span>流派、团队和全局判断统一整理，自动保存在当前浏览器</span></div>
+      <div class="wm-notebook"><div><div id="wm-note-index" class="wm-note-index"></div></div><div id="wm-note-editor"></div></div>
+    </section>
+
+    <section class="wm-section">
+      <div class="wm-section-head"><h2>证据来源</h2><span>截至 2026-08-13</span></div>
+      <div id="wm-sources" class="wm-source-grid"></div>
+      <p class="wm-note">口径：不根据姓名推断国籍或族裔；“中国背景”仅展示中文姓名、在中国高校/机构的公开教育与任职经历。HappyOyster、Project Eden、JoyAI‑Echo 的个人名单尚未由官方完整披露；字节 12 月交付为用户提供的内部预期，公开资料未确认。RhOS.ai、OphilusAI/Yahaha 与其他新增公司按公开官网、论文、GitHub、公司页和媒体报道分级记录。</p>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('wm-talent-map');
+      const tracks = ['游戏世界模型','多模态控制','实时视频生成','蒸馏/加速','空间布局生成','长视频生成','空间记忆'];
+      const sources = [
+        ['HappyOyster 官方站','https://www.happyoyster.cn/'],
+        ['Alibaba Cloud 官方发布','https://www.alibabacloud.com/blog/alibaba-launches-happyoyster-a-world-model-product-for-real-time-immersive-creation-and-interaction_603048'],
+        ['PFM 论文','https://arxiv.org/abs/2607.03524'],
+        ['Echo-Memory 论文','https://arxiv.org/abs/2606.09803'],
+        ['Echo-Memory 代码','https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory'],
+        ['JoyAI-Echo 代码','https://github.com/jd-opensource/JoyAI-Echo'],
+        ['Causal Forcing 论文','https://arxiv.org/abs/2602.02214'],
+        ['Causal Forcing++ 论文','https://arxiv.org/abs/2605.15141'],
+        ['Causal Forcing 代码','https://github.com/thu-ml/Causal-Forcing'],
+        ['LingBot-World 2.0','https://github.com/robbyant/lingbot-world-v2'],
+        ['Project Eden 官方页','https://www.tripo3d.ai/research/project-eden'],
+        ['Kling-Omni 论文','https://arxiv.org/abs/2512.16776'],
+        ['范浩奇个人主页','https://haoqifan.github.io/'],
+        ['赵敏个人主页','https://gracezhao1997.github.io/'],
+        ['朱泓舟个人主页','https://zhuhz22.github.io/'],
+        ['李崇轩个人主页','https://zhenxuan00.github.io/'],
+        ['朱军个人主页','http://ml.cs.tsinghua.edu.cn/~jun/biography.shtml'],
+        ['王鑫涛个人主页','https://xinntao.github.io/'],
+        ['鲍凡个人主页','https://baofff.github.io/'],
+        ['段楠个人主页','https://nanduan.github.io/'],
+        ['OmniForcing 代码','https://github.com/OmniForcing/OmniForcing'],
+        ['Self Gradient Forcing 代码','https://github.com/zhuang2002/Self_Gradient_Forcing'],
+        ['Robbyant 公司团队页','https://www.robbyant.com/about-robby'],
+        ['LingBot-World 1.0 论文','https://arxiv.org/abs/2601.20540'],
+        ['Yinghao Xu 个人主页','https://justimyhxu.github.io/'],
+        ['Zehong Shen 个人主页','https://zehongs.github.io/'],
+        ['Yujun Shen 个人主页','https://shenyujun.github.io/'],
+        ['Zelin Gao 个人主页','https://zelingao98.github.io/'],
+        ['Hao Ouyang 个人主页','https://ken-ouyang.github.io/'],
+        ['HappyOyster 媒体线索搜索','https://www.google.com/search?q=HappyOyster+ATH+Alibaba+team'],
+        ['范浩奇 LinkedIn 搜索','https://www.google.com/search?q=Haoqi+Fan+ByteDance+Seed+LinkedIn'],
+        ['VAST GitHub 组织','https://github.com/VAST-AI-Research'],
+        ['RhOS.ai 官方站','https://www.rhos.ai/'],
+        ['RhOS Lab 主页','https://mvig-rhos.com/'],
+        ['Khora 研究预览','https://www.rhos.ai/research/khora/'],
+        ['Khora 论文','https://arxiv.org/html/2608.08600v1'],
+        ['Yong-Lu Li 个人主页','https://dirtyharrylyl.github.io/'],
+        ['OphilusAI / Yahaha 公司搜索','https://www.google.com/search?q=OphilusAI+YAHAHA+world+model'],
+        ['Lumera 论文','https://arxiv.org/abs/2607.20889'],
+        ['YAHAHA 公司档案','https://www.pocketgamer.biz/company-profile-yahaha/'],
+        ['Matrix-Game 3.0 论文','https://arxiv.org/html/2604.08995v1'],
+        ['Matrix-Game 3.5 发布报道','https://finance.sina.com.cn/stock/t/2026-07-20/doc-iniimqsf3039542.shtml'],
+        ['极佳视界官网','https://gigaai.cc/'],
+        ['GigaWorld-1 报道','https://finance.sina.com.cn/stock/t/2026-03-30/doc-inhstxxa6479247.shtml'],
+        ['星海图 Fast-WAM 报道','https://www.stcn.com/article/detail/3965058.html'],
+        ['千寻智能官网','https://www.spirit-ai.com/about'],
+        ['Decart 官方站','https://decart.ai/'],
+        ['Oasis 项目页','https://oasis-model.github.io/'],
+        ['Odyssey 官方站','https://odyssey.ml/'],
+        ['World Labs 官方站','https://www.worldlabs.ai/']
+      ];
+      const teams = [
+        {id:'happy',name:'阿里 HappyOyster',sub:'ATH 创新事业部（公开报道）',tracks:['游戏世界模型','多模态控制','实时视频生成','蒸馏/加速'],adj:['长视频生成'],level:'pending',summary:'官方定位为开放式、实时创建与交互的世界模型；原生多模态输入驱动视觉与音频。个人研发名单未公开。',evidence:['HappyOyster 官方站确认“实时、可交互、开放世界模型”定位。','Alibaba Cloud 官方稿确认产品由阿里发布。','ATH 归属与具体人才名单目前主要来自媒体口径，需二次核实。','社媒与搜索结果可追踪张迪、郑波等组织线索，但未见官方研发署名页。'],people:['zhangdi','zhengbo'],roster:['张迪（媒体关联线索，待官方确认）','郑波（媒体关联线索，待官方确认）'],url:'https://www.happyoyster.cn/'},
+        {id:'pfm',name:'京东 Joy Future Academy · PFM',sub:'Perceptual Flow Matching',tracks:['蒸馏/加速'],adj:['实时视频生成'],level:'project',summary:'在感知特征空间监督 flow matching，把图像/视频生成采样从 35–50 步降到 4–8 步，不依赖教师模型。',evidence:['arXiv:2607.03524，2026-07-03。','论文覆盖图像、视频和图像编辑；属于少步生成训练目标创新。','新增保留 Yifei Song、Hongfa Wang 等论文作者作为项目确认节点，个人履历另行分级。'],people:['chuyang','yifeisong','hongfawang','haoyang','nanduan'],roster:['Chuyang Zhao','Yifei Song','Hongfa Wang','Jianlong Yuan','Yuan Zhang','Siming Fu','Zhineng Chen','Huilin Deng','Haoyang Huang','Nan Duan'],url:'https://arxiv.org/abs/2607.03524'},
+        {id:'echo-memory',name:'京东 Joy Future Academy · Echo-Memory',sub:'Action world model memory',tracks:['空间记忆'],adj:['游戏世界模型','多模态控制','长视频生成'],level:'project',summary:'在统一动作到视频框架下对比 raw context、compression、spatial 与 state-space 四类记忆；重点测试离开视野再返回时的身份、布局和视角一致性。',evidence:['arXiv:2606.09803 与官方仓库均署名 Echo Team @ Joy Future Academy, JD。','仓库说明 Spatial Memory 当前公开结果为 token-grid 基线，并非深度/TSDF/点云几何记忆。'],people:['wayne','zeyue','yuxuan','haoyang','nanduan'],roster:['Wayne King','Zeyue Xue','Yuxuan Bian','Jie Huang','Haoran Li','Yaowei Li','Yaofeng Su','Yuming Li','Haoyu Wang','Shiyi Zhang','Songchun Zhang','Yuwei Niu','Sihan Xu','Junhao Zhuang','Haoyang Huang','Nan Duan'],url:'https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory'},
+        {id:'joyecho',name:'京东 Joy Future Academy · JoyAI-Echo',sub:'Echo Team collective release',tracks:['实时视频生成','蒸馏/加速','长视频生成'],adj:['空间记忆','多模态控制'],level:'project',summary:'分钟级多镜头音视频生成，使用配对跨模态记忆与 DMD 蒸馏，官方报告 7.5× 加速、最长 5 分钟故事。',evidence:['GitHub 以 Echo Team 集体署名，未给出个人作者表。','“实时”口径来自官方项目描述的 conversation-speed / streaming latency，不等同于 60fps 交互式世界模型。'],people:[],roster:['Echo Team @ Joy Future Academy, JD（集体署名）'],url:'https://github.com/jd-opensource/JoyAI-Echo'},
+        {id:'causal',name:'生数 / 清华 · Causal Forcing',sub:'TSAIL × ShengShu ecosystem',tracks:['实时视频生成','蒸馏/加速'],adj:['游戏世界模型','多模态控制','长视频生成'],level:'verified',summary:'用自回归教师完成 ODE 初始化，解决双向教师到因果学生的架构鸿沟；++ 进一步做到逐帧 1–2 步，并扩展动作条件世界模型。',evidence:['Causal Forcing：ICML 2026，核心共同一作为朱泓舟、赵敏。','Causal Forcing++：逐帧 2-step，首帧延迟降低 50%，Stage 2 训练成本约降 4×。','项目代码位于 thu-ml；++ 同时链接生数 minWM。'],people:['minzhao','hongzhou','chongxuan','junzhu'],roster:['Hongzhou Zhu','Min Zhao','Guande He','Hang Su','Chongxuan Li','Jun Zhu','Kaiwen Zheng','Zihan Zhou','Bokai Yan','Xinyuan Li','Xiao Yang'],url:'https://github.com/thu-ml/Causal-Forcing'},
+        {id:'lingbot',name:'蚂蚁灵波 · LingBot-World 2.0',sub:'Robbyant Team',tracks:['游戏世界模型','多模态控制','实时视频生成','长视频生成'],adj:['蒸馏/加速','空间记忆'],level:'project',summary:'无限交互时域、丰富动作与文本事件控制；蒸馏实时版目标 720p 60fps，并引入 pilot/director 双 agent harness。',evidence:['官方仓库与 arXiv:2607.07534 提供 20 人作者表。','仓库当前公开 causal-fast 14B 推理与模型；完整部署代码明确不计划公开。','Robbyant 团队页确认 Yujun Shen 为 Chief Scientist；Yinghao Xu、Zehong Shen 等公开主页显示 LingBot 生态关联。'],people:['zelin','qiuyu','jiapeng','yinghao','yujun','zehong','haoouyang'],roster:['Zelin Gao','Qiuyu Wang','Jiapeng Zhu','Jingye Chen','Zichen Liu','Qingyan Bai','Jiahao Wang','Yufeng Yuan','Hanlin Wang','Yichong Lu','Ka Leong Cheng','Haojie Zhang','Jian Gao','Tianrui Feng','Yuzheng Liu','Yao Yao','Yinghao Xu','Xing Zhu','Yujun Shen','Hao Ouyang'],url:'https://github.com/robbyant/lingbot-world-v2'},
+        {id:'eden',name:'Tripo / VAST · Project Eden',sub:'Research preview',tracks:['游戏世界模型','空间布局生成','空间记忆'],adj:['多模态控制','长视频生成'],level:'pending',summary:'把持久的结构化世界状态与视觉渲染解耦，支持跨视角一致性、多人共享世界、可编辑状态与 agent 训练。',evidence:['官方页于 2026-05-31 发布 research preview。','官方未给出 Eden 项目个人署名；VAST GitHub 公开组织成员不能直接等同于项目作者。','社媒/组织层面可确认 VAST、Tripo AI 和公开 GitHub 成员，但不能外推项目分工。'],people:['simonsong','yanpei','yuanliang','yihua'],roster:['Project Eden 个人名单未公开','VAST GitHub 公开成员：Yanpei Cao、Yuan Liang、Yihua（仅组织关联）'],url:'https://www.tripo3d.ai/research/project-eden'},
+        {id:'kling',name:'可灵 · Kling-Omni',sub:'Kling Team / 快手',tracks:['多模态控制'],adj:['游戏世界模型','长视频生成'],level:'project',summary:'统一文本、参考图像与视频上下文，覆盖视频生成、编辑、推理和多模态指令跟随；论文把它定位为多模态世界模拟器方向的一步。',evidence:['arXiv:2512.16776 提供 Kling Team 与完整作者名单。','该节点代表公开技术报告，不与字节团队合并计算。'],people:['xintao','pengfei','kungai','jialu'],roster:['Jialu Chen','Yuanzheng Ci','Xiangyu Du','Zipeng Feng','Kun Gai','Sainan Guo','Feng Han','Jingbin He','Kang He','Xiao Hu','Xiaohua Hu','Boyuan Jiang','Fangyuan Kong','Hang Li','Jie Li','Qingyu Li','Shen Li','Xiaohan Li','Yan Li','Jiajun Liang','Borui Liao','Yiqiao Liao','Weihong Lin','Quande Liu','Xiaokun Liu','Yilun Liu','Yuliang Liu','Shun Lu','Hangyu Mao','Yunyao Mao','Haodong Ouyang','Wenyu Qin','Wanqi Shi','Xiaoyu Shi','Lianghao Su','Haozhi Sun','Peiqin Sun','Pengfei Wan','Chao Wang','Chenyu Wang','Meng Wang','Qiulin Wang','Runqi Wang','Xintao Wang','Xuebo Wang','Zekun Wang','Min Wei','Tiancheng Wen','Guohao Wu','Xiaoshi Wu','Zhenhua Wu','Da Xie','Yingtong Xiong','Yulong Xu','Sile Yang','Zikang Yang','Weicai Ye','Ziyang Yuan','Shenglong Zhang','Shuaiyu Zhang','Yuanxing Zhang','Yufan Zhang','Wenzheng Zhao','Ruiliang Zhou','Yan Zhou','Guosheng Zhu','Yongjie Zhu'],url:'https://arxiv.org/abs/2512.16776'},
+
+        {id:'rhos',name:'RhOS.ai',sub:'Physical AI / multi-agent world model',tracks:['游戏世界模型','多模态控制','实时视频生成','空间记忆'],adj:['空间布局生成'],level:'project',summary:'RhOS.ai 官网定位为面向真实机器人的 Physical AI 公司，结合 world modeling、embodied data、motion control 与 robotic hardware；Khora 研究预览强调多人/多智能体世界模型的线性复杂度。',evidence:['RhOS.ai 官网明确“physical AI company building robot foundation systems”，覆盖 world models、data systems、motion control、hardware。','Khora 论文与研究预览称其通过共享世界状态和统一渲染接口支持推理期扩展到任意数量智能体，复杂度从 pairwise O(n²) 转为 O(n)。','RhOS Lab 主页显示其来自上海交通大学 / 上海创智学院研究生态，Yong-Lu Li 为 PI。'],people:['yongluli','renjiezhao','yuxiangwu','mingyuzhang','jiaxinli'],roster:['Renjie Zhao','Yuxiang Wu','Mingyu Zhang','Jiaxin Li','Sisi Li','Yimin Sheng','Tianxi Tan','Zhenkai Zhang','Jianyi Zhu','Yong-Lu Li'],url:'https://www.rhos.ai/research/khora/'},
+        {id:'ophilus',name:'OphilusAI / YAHAHA',sub:'Engine-native 3D world reconstruction',tracks:['空间布局生成','空间记忆','游戏世界模型'],adj:['多模态控制'],level:'project',summary:'OphilusAI 公开论文 Lumera 聚焦从单图恢复可导入 Blender/UE5 的对象、布局和参数化灯光；与 YAHAHA 创始团队和游戏 UGC/3D 创作生态存在公开关联线索。',evidence:['Lumera 论文署名 Ophilus AI，提出 engine-native、light-aware 3D scene parsing，数据来自 2,513 个 UE5 项目，包含对象、灯光和相机视角。','YAHAHA 公司档案显示其 2020 年成立，总部赫尔辛基，关键人员包括 CEO Chris Zhu、COO Pengfei Zhang、CTO Hao Min。','OphilusAI 与 YAHAHA 的法人、团队边界需要继续核验；本页按公开署名和公司档案区分记录。'],people:['chriszhu','jianyizhu','yiminsheng','sisili','haomin','pengfeizhang'],roster:['Junhao Chen','Xinghao Chen','Henghaofan Zhang','Zihao Qiao','Saining Zhang','Yongzhi Li','Ruqi Huang','Sisi Li','Yimin Sheng','Jianyi Zhu','Hao Zhao'],url:'https://arxiv.org/abs/2607.20889'},
+        {id:'matrixgame',name:'昆仑万维 Skywork · Matrix-Game',sub:'Open interactive world model',tracks:['游戏世界模型','多模态控制','实时视频生成','空间记忆'],adj:['长视频生成'],level:'project',summary:'Matrix-Game 3.0/3.5 聚焦可交互世界模型、长程记忆和实时推理；公开报道称 3.5 在 720p 下单卡 20FPS，并引入 Patch-level FOV Memory。',evidence:['Matrix-Game 3.0 论文提出 memory-augmented interactive world model，目标为 720p real-time long-form video generation。','WAIC 2026 报道称 Matrix-Game 3.5 使用 Patch 级记忆、5B 模型、500 万高质量视频切片，达成 720p 单卡 20FPS。','部分 3.5 信息来自媒体报道，应继续跟踪官方技术报告和开源仓库。'],people:['chengyu'],roster:['Cheng Yu / 成宇（公开报道发言人线索）'],url:'https://arxiv.org/html/2604.08995v1'},
+        {id:'gigaai',name:'极佳视界 · GigaWorld',sub:'Embodied world model / physical AI',tracks:['游戏世界模型','多模态控制','空间布局生成','空间记忆'],adj:['实时视频生成'],level:'project',summary:'极佳视界官网与报道显示其以 GigaWorld 作为具身交互数据引擎和物理 AI 世界模型平台，GigaWorld-0 开源，GigaWorld-1 面向动作控制世界模型。',evidence:['官网称 GigaWorld-0 通过生成高泛化具身交互数据缓解具身基础模型数据困境。','公开报道称 GigaWorld-1 面向机器人等具身智能体，融合显式动作建模、可微分物理引擎和真实机器人操作数据。','融资、排名等信息多来自媒体和榜单，应与官方论文/代码分开标注。'],people:['huangguan'],roster:['黄冠（创始人兼 CEO，媒体与公司线索）'],url:'https://gigaai.cc/'},
+        {id:'galaxea',name:'星海图 Galaxea AI',sub:'Fast-WAM / embodied foundation model',tracks:['多模态控制','实时视频生成','空间记忆'],adj:['游戏世界模型'],level:'project',summary:'星海图围绕 VLA、世界行动模型 Fast-WAM 和机器人本体形成具身智能闭环；公开报道强调 Fast-WAM 将世界模型延迟压缩到接近实时决策。',evidence:['证券时报报道称星海图发布 G0.5、世界模型 Fast-WAM、全身控制基础模型，并启动百万小时真实数据计划。','媒体报道称 Fast-WAM 把单步延迟压缩至约 190ms，强调不依赖测试时显式未来视频生成。','需以论文、官方项目页和开源仓库进一步确认具体指标。'],people:['gaojiyang','zhaoxing'],roster:['高继扬（CEO）','赵行（CTO）'],url:'https://www.stcn.com/article/detail/3965058.html'},
+        {id:'spiritai',name:'千寻智能 Spirit AI',sub:'Embodied VLA / humanoid robot company',tracks:['多模态控制','空间记忆'],adj:['游戏世界模型','实时视频生成'],level:'pending',summary:'千寻智能官网定位为 AI+机器人全栈生产力级具身智能公司，打造通用人形机器人和下一代具身大模型与学习算法；世界模型相关性主要来自具身 VLA 和物理交互方向。',evidence:['官网称公司聚焦通用人形机器人、下一代具身大模型与学习算法。','36Kr 项目信息显示团队来自 UC Berkeley、CMU、清华、北大以及小米、华为、腾讯等机构。','目前未检索到明确以“世界模型”命名的公开模型页，暂列为具身世界模型相邻公司。'],people:['hanfengtao'],roster:['韩峰涛（创始人兼 CEO，媒体资料）'],url:'https://www.spirit-ai.com/about'},
+        {id:'decart',name:'Decart AI Lab',sub:'Real-time world models',tracks:['游戏世界模型','实时视频生成','多模态控制'],adj:['长视频生成'],level:'verified',summary:'Decart 官网定位为 building real-time world models；Oasis 系列从 AI Minecraft/open-world demo 扩展到 Physical AI 的交互世界模型 API。',evidence:['Decart 官网称其构建 millisecond latency 的 real-time world models。','Oasis 项目页称其为 realtime open-world AI model，由 Decart 与 Etched 发布。','Decart Oasis 页面进一步把 Oasis 定位为 Physical AI 的 interactive world model API。'],people:['deanleitersdorf','robertwachen'],roster:['Dean Leitersdorf','Robert Wachen（Etched 关联）'],url:'https://decart.ai/'},
+        {id:'odyssey',name:'Odyssey',sub:'General world models / Explorer',tracks:['游戏世界模型','空间布局生成','长视频生成'],adj:['多模态控制'],level:'verified',summary:'Odyssey 官网定位为 general world models 公司；Explorer 是 image-to-world 模型，目标是把图像转成可用于影视和游戏制作的 3D 世界。',evidence:['官网称 Odyssey 是 AI lab pioneering general world models，研究 causal, multimodal systems。','Explorer 页面称其为 image-to-world model，可从图像生成 detailed 3D world。','公开报道显示 Odyssey 2026 年完成 3.1 亿美元 B 轮融资，但融资数据作为公司背景，不等同技术能力。'],people:['olivercameron','jeffhawke'],roster:['Oliver Cameron','Jeff Hawke'],url:'https://odyssey.ml/'},
+        {id:'worldlabs',name:'World Labs',sub:'Spatial intelligence / 3D world generation',tracks:['空间布局生成','空间记忆','游戏世界模型'],adj:['多模态控制'],level:'verified',summary:'World Labs 官网定位为空间智能公司，构建能感知、生成、推理并与 3D 世界交互的前沿模型；与实时世界模型和可下载 3D 环境路线相关。',evidence:['官网称其 building frontier models that can perceive, generate, reason, and interact with the 3D world。','公开报道将 Marble 与 Decart、Odyssey、Google Genie 等世界模型路线对比，强调持久、可下载 3D 环境。','本页把 World Labs 归为全球空间智能/世界模型公司，不归入中国人才图谱。'],people:['feifeili','justinjohnson','benmildenhall'],roster:['Fei-Fei Li','Justin Johnson','Christoph Lassner','Ben Mildenhall'],url:'https://www.worldlabs.ai/'},
+        {id:'seed',name:'字节 Seed · 世界模型研究组',sub:'范浩奇（公开报道负责人）',tracks:['游戏世界模型','多模态控制'],adj:['实时视频生成'],level:'pending',summary:'公开报道指向新设世界模型研究组，由范浩奇负责；具体模型与“12 月交付”暂无官方技术报告或产品页确认。',evidence:['范浩奇个人主页确认 7 年 FAIR、CMU Robotics Institute、BAGEL 统一多模态方向。','世界模型负责人及交付时间主要来自 36Kr 等媒体与用户线索，应继续跟踪官方 Seed 页面。'],people:['haoqi'],roster:['Haoqi Fan / 范浩奇（负责人线索）','其余成员未公开'],url:'https://seed.bytedance.com/en/direction/multimodal'}
+      ];
+      const teamProfiles = {
+        happy:{facts:[['组织归属','阿里巴巴；ATH 创新事业部归属来自公开报道'],['技术路线','原生多模态条件驱动的开放世界实时生成与交互'],['代表项目','HappyOyster 世界模型产品'],['公开状态','官网与产品介绍已公开；模型、论文和研发名单未公开'],['关键节点','2026 年公开产品定位与交互体验'],['人才信号','重点关注实时因果视频、音视频联合建模、交互系统与推理优化'],['风险边界','团队组织和个人贡献缺少一手署名，不宜据媒体名单直接归因'],['最后核验','2026-07-28']]},
+        pfm:{people:['chuyang','yifeisong','hongfawang','haoyang','nanduan'],facts:[['组织归属','京东 Joy Future Academy，PFM 论文作者团队'],['技术路线','在感知特征空间训练 flow matching，以目标函数替代教师蒸馏'],['代表项目','Perceptual Flow Matching，覆盖图像、视频与编辑'],['公开状态','论文已公开；实现与个人分工以项目页为准'],['关键节点','35–50 步基线压缩至 4–8 步采样'],['人才信号','生成基础模型训练、少步采样、感知表征与后训练'],['风险边界','论文署名可确认项目关系，但不自动等同当前岗位或团队职级'],['最后核验','2026-07-28']]},
+        'echo-memory':{people:['wayne','zeyue','yuxuan','haoyang','nanduan','yaofeng','yuming','haoran','junhao'],facts:[['组织归属','京东 Joy Future Academy · Echo Team'],['技术路线','动作条件视频世界模型，系统比较上下文压缩、空间与状态空间记忆'],['代表项目','Echo-Memory；与 OmniForcing、Self Gradient Forcing 共享多位作者'],['公开状态','论文与代码公开；部分个人履历未公开'],['关键节点','建立离开视野再返回的身份、布局与视角一致性评测'],['人才信号','空间记忆、长时序一致性、动作控制、实时音视频与长视频外推'],['风险边界','当前 Spatial Memory 是 token-grid 基线，不应表述为显式 3D 几何地图'],['最后核验','2026-07-28']]},
+        joyecho:{facts:[['组织归属','京东 Joy Future Academy · Echo Team'],['技术路线','跨模态记忆结合 DMD 蒸馏的分钟级多镜头音视频生成'],['代表项目','JoyAI-Echo'],['公开状态','代码仓库与技术说明公开，个人作者表未公开'],['关键节点','官方口径最长 5 分钟、7.5× 加速'],['人才信号','联合音视频生成、流式推理、长视频叙事、分布匹配蒸馏'],['风险边界','conversation-speed 不等同于高帧率交互式世界模型'],['最后核验','2026-07-28']]},
+        causal:{people:['minzhao','hongzhou','guande','fanbao','chongxuan','junzhu'],facts:[['组织归属','清华 TSAIL 与生数科技研究生态'],['技术路线','双向扩散教师向因果少步学生迁移；++ 扩展逐帧 1–2 步与动作控制'],['代表项目','Causal Forcing、Causal Forcing++、minWM'],['公开状态','论文、项目页与代码公开'],['关键节点','ICML 2026；++ 报告首帧延迟减半、第二阶段训练成本约降 4×'],['人才信号','扩散理论、因果视频生成、世界模型训练、蒸馏与系统加速'],['风险边界','高校与企业作者并存，需区分学术合作关系和正式任职'],['最后核验','2026-07-28']]},
+        lingbot:{facts:[['组织归属','蚂蚁集团灵波科技 Robbyant Team'],['技术路线','因果视频世界模型配合动作/文本事件控制与 pilot/director 双 agent'],['代表项目','LingBot-World 2.0'],['公开状态','论文、仓库、模型与部分推理代码公开；完整部署代码不公开'],['关键节点','无限交互时域；蒸馏实时版目标 720p 60fps'],['人才信号','视频世界模型、机器人/游戏控制、实时推理、agent 环境'],['风险边界','60fps 为官方目标口径，应与公开可复现实测区分'],['最后核验','2026-07-28']]},
+        eden:{people:['simonsong','yanpei','yuanliang','yihua'],facts:[['组织归属','VAST / Tripo AI'],['技术路线','把持久结构化世界状态与视觉渲染解耦'],['代表项目','Project Eden research preview'],['公开状态','官方研究预览已发布，项目个人作者名单未公开'],['关键节点','2026-05-31 发布；强调多人共享、状态可编辑与 agent 训练'],['人才信号','3D/4D 生成、场景布局、持久世界状态、多人同步与渲染系统'],['风险边界','宋亚宸仅确认 VAST 创始人；GitHub 成员仅确认组织关联，均非 Eden 署名'],['最后核验','2026-07-28']]},
+        kling:{people:['xintao','pengfei','kungai','jialu'],facts:[['组织归属','快手可灵 Kling Team'],['技术路线','统一文本、图像、视频上下文的生成、编辑、理解与多模态指令跟随'],['代表项目','Kling-Omni；团队同时布局 4K、RL 后训练与统一模型'],['公开状态','Kling-Omni 技术报告公开，作者名单完整'],['关键节点','从视频生成扩展到多模态世界模拟器与 next-state prediction 方向'],['人才信号','统一多模态、视频预训练、4K 生成、强化学习后训练与推理优化'],['风险边界','论文作者顺序不等同组织汇报关系；个人职责仅采用个人主页公开信息'],['最后核验','2026-07-28']]},
+
+        rhos:{people:['yongluli','renjiezhao','yuxiangwu','mingyuzhang','jiaxinli'],facts:[['公司/机构','RhOS Inc. 与上海交通大学 RhOS Lab / 上海创智学院研究生态并行出现'],['技术路线','共享世界状态 + 统一查询/渲染接口，支持多人、多视角、多智能体一致性'],['代表项目','Khora / RhOS-World：Population-Scalable Multi-Agent World Modeling'],['公开状态','官网、研究预览与论文已公开；公司股权和完整团队名单需继续核验'],['关键节点','2026-08-11 arXiv 论文；强调 O(n) 多人扩展复杂度'],['人才信号','具身 AI、物理推理、多智能体世界模型、机器人数据闭环'],['风险边界','RhOS.ai 公司与 RhOS Lab 学术团队存在强公开关联，但人员任职与公司雇佣关系需逐项核验'],['最后核验','2026-08-13']]},
+        ophilus:{people:['chriszhu','jianyizhu','yiminsheng','sisili','haomin','pengfeizhang'],facts:[['公司/机构','OphilusAI；与 YAHAHA / 3D UGC 游戏创作生态存在公开关联线索'],['技术路线','引擎原生可编辑 3D 世界重建：对象实例、布局、参数化灯光、Blender/UE5 导入'],['代表项目','Lumera：Engine-Native Editable 3D World Reconstruction with Objects and Lighting'],['公开状态','Lumera 论文公开；OphilusAI 公司资料和 Yahaha 关系需继续工商/LinkedIn 核验'],['关键节点','2026-07-23 Lumera 论文；Lumera-2K 来自 2,513 个 UE5 项目'],['人才信号','游戏引擎、3D 场景解析、灯光重建、UGC 创作平台和 AI 世界生成'],['风险边界','不要把 YAHAHA 所有成员自动归为 OphilusAI；按论文署名、公司档案、个人主页分别标注'],['最后核验','2026-08-13']]},
+        matrixgame:{people:['chengyu'],facts:[['公司/机构','昆仑万维 Skywork / 天工 AI'],['技术路线','可交互视频世界模型 + FOV/Patch 记忆 + 实时推理优化'],['代表项目','Matrix-Game 3.0 / 3.5'],['公开状态','3.0 论文公开；3.5 多来自 WAIC 发布与媒体报道'],['关键节点','2026-07 WAIC 发布 3.5，公开报道称 720p 单卡 20FPS'],['人才信号','开源互动世界模型、长程记忆、游戏场景数据、实时推理工程'],['风险边界','3.5 具体指标需等待官方论文、模型权重或复现实测'],['最后核验','2026-08-13']]},
+        gigaai:{people:['huangguan'],facts:[['公司/机构','极佳视界 GigaAI'],['技术路线','具身世界模型作为数据引擎，服务机器人动作控制和物理 AI'],['代表项目','GigaWorld-0、GigaWorld-1、GigaBrain'],['公开状态','官网公开 GigaWorld-0；GigaWorld-1 主要来自公司与媒体报道'],['关键节点','2026 年报道称 GigaWorld-1 在 WorldArena 表现领先'],['人才信号','物理 AI、机器人数据合成、可微物理、VLA 数据引擎'],['风险边界','榜单、融资和“全球第一”等表述需按来源标注'],['最后核验','2026-08-13']]},
+        galaxea:{people:['gaojiyang','zhaoxing'],facts:[['公司/机构','星海图 Galaxea AI'],['技术路线','VLA 基础模型 + Fast-WAM 世界行动模型 + 机器人本体'],['代表项目','Fast-WAM、G0.5、Kengo 行客'],['公开状态','公司大会与媒体报道公开；需补论文/代码链接'],['关键节点','2026-06 开发者大会披露技术路线与百万小时真实数据计划'],['人才信号','具身智能系统、低延迟世界行动模型、真实机器人数据闭环'],['风险边界','190ms 等指标需区分媒体报道、官方发布和第三方复现'],['最后核验','2026-08-13']]},
+        spiritai:{people:['hanfengtao'],facts:[['公司/机构','千寻智能 Spirit AI'],['技术路线','具身 VLA、机器人全栈、下一代具身大模型与学习算法'],['代表项目','Spirit VLA / 通用人形机器人方向'],['公开状态','官网和融资项目信息公开；世界模型项目名暂未明确'],['关键节点','2024 年成立；多轮融资；团队来自顶尖高校和机器人/大厂背景'],['人才信号','机器人本体、VLA、数据闭环、真实场景落地'],['风险边界','暂列世界模型相邻公司，不能等同已发布视频/游戏世界模型'],['最后核验','2026-08-13']]},
+        decart:{people:['deanleitersdorf','robertwachen'],facts:[['公司/机构','Decart AI Lab；Oasis 与 Etched 共同发布早期版本'],['技术路线','实时交互世界模型，键鼠/物理控制信号驱动下一帧或环境演化'],['代表项目','Oasis、Oasis 3、Lucy 2'],['公开状态','官网、项目页、API 与开源 Oasis 500M 线索公开'],['关键节点','Oasis 作为 playable AI-generated open-world demo；Oasis 3 面向 Physical AI'],['人才信号','实时推理基础设施、游戏世界模型、自动驾驶/机器人仿真'],['风险边界','早期 Oasis 画质和一致性有限，不能与完整游戏引擎等价'],['最后核验','2026-08-13']]},
+        odyssey:{people:['olivercameron','jeffhawke'],facts:[['公司/机构','Odyssey，Palo Alto 世界模型 AI lab'],['技术路线','causal multimodal general world models；image-to-world / interactive video model'],['代表项目','Explorer、Odyssey-2'],['公开状态','官网和 Explorer 页面公开；商业 API 接入中'],['关键节点','2026 年公开 3.1 亿美元 B 轮融资，估值 14.5 亿美元'],['人才信号','自动驾驶出身团队、3D 世界生成、影视/游戏制作管线'],['风险边界','融资规模不等同技术成熟度，需看模型可用性和输出格式'],['最后核验','2026-08-13']]},
+        worldlabs:{people:['feifeili','justinjohnson','benmildenhall'],facts:[['公司/机构','World Labs'],['技术路线','空间智能模型：感知、生成、推理、交互 3D 世界'],['代表项目','Marble / spatial world generation'],['公开状态','官网公开；商业产品和技术报告持续发布'],['关键节点','强调 persistent、downloadable 3D environments，与实时探索式模型形成差异'],['人才信号','3D 视觉、NeRF/场景表示、空间推理、世界生成'],['风险边界','全球公司对照节点，不作为中国人才节点统计'],['最后核验','2026-08-13']]},
+        seed:{facts:[['组织归属','字节跳动 Seed；世界模型研究组信息来自公开报道'],['技术路线','统一多模态模型向可控世界建模和视频状态预测延伸'],['代表项目','公开可验证的邻近工作包括 BAGEL；组内具体世界模型未知'],['公开状态','方向页和负责人个人履历可核；模型与团队名单未公开'],['关键节点','用户线索称预计 12 月交付，尚无官方确认'],['人才信号','视频理解、统一多模态、世界模型预训练与 post-training'],['风险边界','负责人归属、交付时间和团队边界需等待 Seed 官方材料'],['最后核验','2026-07-28']]}
+      };
+      teams.forEach(team=>Object.assign(team,teamProfiles[team.id]||{}));
+      const schools = [
+        {id:'interactive',name:'交互式虚拟环境',color:'var(--viz-series-1)',question:'核心问题：模型能否根据用户、键鼠、视角或多模态指令，持续生成可玩的下一状态？',description:'面向游戏、虚拟空间和实时互动产品，重点观察可玩性、动作响应、低延迟与世界状态闭环。',teamIds:['happy','causal','lingbot','matrixgame','decart','odyssey']},
+        {id:'generative',name:'生成式内容与视频',color:'var(--viz-series-2)',question:'核心问题：模型能否把文本、图像、音频或视频条件转化为连续、可控、可消费的世界内容？',description:'面向视频生成、长视频、实时视频和多模态内容生产；团队可能同时拥有交互或空间方向。',teamIds:['pfm','joyecho','kling','gigaai','causal','happy']},
+        {id:'spatial',name:'空间智能与 3D 世界',color:'var(--viz-series-3)',question:'核心问题：模型能否获得可探索、可编辑、跨视角一致的三维世界表示？',description:'面向空间理解、场景布局、3D/4D 生成和持久环境表示，连接内容生成与空间推理。',teamIds:['eden','rhos','ophilus','worldlabs','gigaai']},
+        {id:'embodied',name:'具身智能与机器人',color:'var(--viz-series-4)',question:'核心问题：模型能否预测动作对环境的影响，并把视频先验转化为规划与控制能力？',description:'面向机器人、具身智能和真实世界闭环，重点观察视觉-动作建模、预测控制与安全执行。',teamIds:['galaxea','spiritai','seed','lingbot']}
+      ];
+      const capabilityLayers = [
+        {id:'memory',name:'记忆与长时一致性',color:'var(--viz-series-5)',description:'跨片段保持空间、角色、事件和世界状态，是所有应用方向共同面对的难题。'},
+        {id:'control',name:'多模态控制',color:'var(--viz-series-1)',description:'把文本、图像、音频、动作、视角和用户输入转成可执行的世界条件。'},
+        {id:'acceleration',name:'蒸馏、少步与实时推理',color:'var(--viz-series-2)',description:'降低采样步数和延迟，决定视频世界模型能否进入实时产品与交互场景。'},
+        {id:'layout',name:'空间布局与可编辑性',color:'var(--viz-series-3)',description:'让生成结果具备结构、几何、可编辑对象和跨视角一致性，而非一次性画面。'}
+      ];
+      const companyProfiles = [
+        {teamId:'happy',color:'var(--viz-series-1)',business:'实时互动世界生成',product:'HappyOyster',customer:'创作者、互动内容与虚拟空间产品团队',model:'开放式实时世界模型；多模态输入驱动视觉与音频',entry:'官网体验 / 产品合作线索',status:'产品定位公开，模型与个人研发名单未公开'},
+        {teamId:'joyecho',color:'var(--viz-series-2)',business:'长视频与多镜头内容生成',product:'JoyAI-Echo、Echo-Memory',customer:'短剧、广告、故事和视频生产团队',model:'跨模态记忆 + DMD 蒸馏，分钟级故事生成',entry:'GitHub / 研究合作 / 开源生态',status:'仓库和项目说明公开，商业服务边界待观察'},
+        {teamId:'causal',color:'var(--viz-series-2)',business:'实时视频生成基础技术',product:'Causal Forcing、Causal Forcing++、minWM',customer:'视频模型公司、研究机构、实时交互产品',model:'因果少步生成、动作条件和低延迟推理',entry:'论文、代码、技术合作与模型集成',status:'论文、代码和团队生态公开'},
+        {teamId:'lingbot',color:'var(--viz-series-1)',business:'视频世界模拟与智能体环境',product:'LingBot-World 2.0',customer:'机器人、游戏、研究者与 agent 开发者',model:'动作/文本事件控制、因果视频预测、agent harness',entry:'开源模型 / 研究生态 / 企业合作',status:'模型与部分推理代码公开，完整部署代码未公开'},
+        {teamId:'eden',color:'var(--viz-series-3)',business:'可编辑 3D 世界与游戏空间',product:'Project Eden',customer:'游戏工作室、3D 内容和 agent 训练团队',model:'持久结构化世界状态与视觉渲染解耦',entry:'研究预览 / 3D 内容工作流',status:'研究预览公开，个人署名与商业产品未明确'},
+        {teamId:'rhos',color:'var(--viz-series-4)',business:'Physical AI 与多智能体机器人系统',product:'RhOS-World、Khora、机器人 foundation systems',customer:'机器人公司、具身 AI 团队与真实世界应用',model:'共享世界状态、多人/多智能体查询与渲染、运动控制',entry:'企业合作 / 机器人平台 / 研究生态',status:'公司官网与论文公开，组织边界需持续核验'},
+        {teamId:'ophilus',color:'var(--viz-series-3)',business:'引擎原生 3D 世界重建与 UGC',product:'Lumera、YAHAHA 相关 3D 创作生态',customer:'游戏开发者、UGC 平台和 3D 创作者',model:'对象、布局、参数化灯光和 Blender/UE5 可编辑资产',entry:'UGC 平台 / 引擎插件 / 游戏创作工具',status:'论文与公司档案公开，OphilusAI/YAHAHA 关系待核验'},
+        {teamId:'matrixgame',color:'var(--viz-series-1)',business:'可交互视频世界模型',product:'Matrix-Game 3.0 / 3.5',customer:'游戏、互动视频和研究开发者',model:'长程记忆、Patch/FOV 记忆与实时推理',entry:'开源模型 / 开发者生态 / 技术合作',status:'3.0 论文公开，3.5 指标主要来自发布报道'},
+        {teamId:'gigaai',color:'var(--viz-series-4)',business:'具身数据引擎与 Physical AI',product:'GigaWorld-0/1、GigaBrain',customer:'机器人公司、VLA 和物理 AI 团队',model:'动作控制世界模型、可微物理与机器人数据生成',entry:'数据引擎 / 机器人合作 / 模型集成',status:'官网和媒体资料公开，部分指标待论文复核'},
+        {teamId:'galaxea',color:'var(--viz-series-4)',business:'机器人本体与世界行动模型',product:'Fast-WAM、G0.5、Kengo 行客',customer:'工业、家庭和服务机器人场景',model:'VLA + 低延迟世界行动模型 + 本体闭环',entry:'机器人销售 / 行业交付 / 开发者生态',status:'公司和媒体资料公开，论文与代码待补'},
+        {teamId:'spiritai',color:'var(--viz-series-4)',business:'通用人形机器人与具身大模型',product:'Spirit VLA / 人形机器人方向',customer:'生产力场景、制造与服务业',model:'具身 VLA、机器人全栈和真实场景学习',entry:'机器人整机 / 行业项目 / 融资生态',status:'官网公开，明确世界模型产品名尚未披露'},
+        {teamId:'decart',color:'var(--viz-series-1)',business:'实时交互世界模型 API',product:'Oasis、Oasis 3、Lucy 2',customer:'游戏、创意工具、Physical AI 和开发者',model:'键鼠/物理控制驱动下一帧和开放世界演化',entry:'API / 模型服务 / 产品集成',status:'官网、项目页和 API 线索公开'},
+        {teamId:'odyssey',color:'var(--viz-series-3)',business:'通用世界模型与 image-to-world',product:'Explorer、Odyssey-2',customer:'影视、游戏、3D 制作和创意团队',model:'因果多模态世界模型，图像转可探索 3D 世界',entry:'商业 API / 创意工具 / 行业合作',status:'官网和产品页公开，融资作为背景资料单独标注'},
+        {teamId:'worldlabs',color:'var(--viz-series-3)',business:'空间智能与 3D 环境生成',product:'Marble / spatial world generation',customer:'空间计算、设计、仿真和创意产业',model:'感知、生成、推理并与持久 3D 世界交互',entry:'产品订阅 / API / 空间智能合作',status:'官网公开，全球对照节点'},
+        {teamId:'seed',color:'var(--viz-series-2)',business:'统一多模态与世界模型研究',product:'公开模型与方向页；具体世界模型待确认',customer:'模型研究、内容平台和内部产品线',model:'视频理解、统一多模态、状态预测与 post-training',entry:'研究招聘 / 模型发布 / 内部产品线',status:'团队与交付预期来自公开报道，暂待官方确认'}
+      ];
+      const evolutionStages = [
+        {title:'阶段一：从视频生成到“下一状态”预测',color:'var(--viz-series-2)',text:'研究重点从单次画面质量转向连续状态预测：模型需要理解动作、时间和因果变化。代表信号包括 Causal Forcing、Kling-Omni、LingBot-World。',signals:['因果视频生成','动作条件','next-state prediction']},
+        {title:'阶段二：从短片到可持续世界状态',color:'var(--viz-series-5)',text:'长序列一致性成为共性挑战，空间记忆、上下文压缩、Patch/FOV 记忆和持久状态开始进入产品路线。代表信号包括 Echo-Memory、Matrix-Game、Project Eden。',signals:['空间记忆','长视频一致性','持久世界状态']},
+        {title:'阶段三：从生成内容到交互式虚拟环境',color:'var(--viz-series-1)',text:'模型开始接受用户、键鼠、视角、动作或多模态指令，并以交互延迟作为核心指标。Oasis、HappyOyster、Odyssey Explorer 体现了这一方向。',signals:['实时交互','用户控制','开放世界']},
+        {title:'阶段四：从虚拟环境到真实世界与机器人',color:'var(--viz-series-4)',text:'视频世界模型逐步与机器人数据、VLA、本体控制和物理仿真结合，目标是预测行动后果并闭环执行。GigaWorld、Fast-WAM、RhOS、Spirit AI 属于这一扩展。',signals:['物理 AI','VLA / WAM','真实数据闭环']},
+        {title:'阶段五：产品化与基础设施竞争',color:'var(--viz-series-3)',text:'少步生成、推理加速、模型服务、可编辑 3D 资产和开发者 API 决定技术能否进入生产流程。PFM、Causal Forcing++、Decart API 等体现这条底座路线。',signals:['蒸馏与加速','模型 API','可编辑资产']}
+      ];
+      const teamSchoolIds = teamId => schools.filter(s=>s.teamIds.includes(teamId)).map(s=>s.id);
+      const people = [
+
+        {id:'yongluli',name:'李永禄 · Yong-Lu Li',team:'rhos',level:'verified',role:'SJTU tenure-track associate professor / RhOS Lab PI',tracks:['游戏世界模型','多模态控制','空间记忆'],bio:'个人主页显示其为上海交通大学长聘教轨副教授、RhOS Lab PI，研究 Physical Reasoning、Embodied AI 与 Human Activity Understanding。',url:'https://dirtyharrylyl.github.io/'},
+        {id:'renjiezhao',name:'Renjie Zhao',team:'rhos',level:'project',role:'Khora 第一作者',tracks:['游戏世界模型','实时视频生成','空间记忆'],bio:'Khora / Population-Scalable Multi-Agent World Modeling 首位作者；个人履历待权威主页核验。',url:'https://arxiv.org/html/2608.08600v1'},
+        {id:'yuxiangwu',name:'Yuxiang Wu',team:'rhos',level:'project',role:'Khora 作者',tracks:['游戏世界模型','空间记忆'],bio:'Khora 论文作者之一；与 RhOS.ai / 上海交大多人世界模型项目公开关联。',url:'https://arxiv.org/html/2608.08600v1'},
+        {id:'mingyuzhang',name:'Mingyu Zhang',team:'rhos',level:'project',role:'Khora 作者',tracks:['游戏世界模型','空间记忆'],bio:'Khora 论文作者之一；与 RhOS.ai / 上海交大多人世界模型项目公开关联。',url:'https://arxiv.org/html/2608.08600v1'},
+        {id:'jiaxinli',name:'Jiaxin Li',team:'rhos',level:'project',role:'Khora 作者',tracks:['游戏世界模型','空间记忆'],bio:'Khora 论文作者之一；与 RhOS.ai / 上海交大多人世界模型项目公开关联。',url:'https://arxiv.org/html/2608.08600v1'},
+        {id:'chriszhu',name:'Chris Zhu',team:'ophilus',level:'pending',role:'YAHAHA / OphilusAI 创始人线索',tracks:['游戏世界模型','空间布局生成'],bio:'公开 LinkedIn 搜索片段显示其为 Yahaha/OphilusAI Founder/CEO；PocketGamer 早期资料列其为 YAHAHA CEO。需进一步核验当前 OphilusAI 法人和岗位。',url:'https://www.linkedin.com/pub/dir/Chris/Zhu'},
+        {id:'jianyizhu',name:'Jianyi Zhu',team:'ophilus',level:'project',role:'Lumera 作者',tracks:['空间布局生成','空间记忆'],bio:'Lumera 论文作者之一；公开同名信息较多，本页仅采用论文署名确认项目关联。',url:'https://arxiv.org/abs/2607.20889'},
+        {id:'yiminsheng',name:'Yimin Sheng',team:'ophilus',level:'project',role:'Lumera 作者',tracks:['空间布局生成'],bio:'Lumera 论文作者之一，参与 engine-native editable 3D world reconstruction 方向。',url:'https://arxiv.org/abs/2607.20889'},
+        {id:'sisili',name:'Sisi Li',team:'ophilus',level:'project',role:'Khora / Lumera 交叉作者',tracks:['空间布局生成','游戏世界模型'],bio:'同时出现在 Khora 与 Lumera 作者表，是多人世界模型与引擎原生 3D 重建之间的公开交叉节点。',url:'https://arxiv.org/abs/2607.20889'},
+        {id:'haomin',name:'Hao Min',team:'ophilus',level:'pending',role:'YAHAHA CTO 线索',tracks:['游戏世界模型','空间布局生成'],bio:'PocketGamer 公司档案列为 YAHAHA CTO；与 OphilusAI 当前关系需继续核验。',url:'https://www.pocketgamer.biz/company-profile-yahaha/'},
+        {id:'pengfeizhang',name:'Pengfei Zhang',team:'ophilus',level:'pending',role:'YAHAHA COO / Managing Director 线索',tracks:['游戏世界模型','空间布局生成'],bio:'PocketGamer 公司档案列为 YAHAHA COO & Managing Director；与 OphilusAI 当前关系需继续核验。',url:'https://www.pocketgamer.biz/company-profile-yahaha/'},
+        {id:'chengyu',name:'成宇 · Cheng Yu',team:'matrixgame',level:'pending',role:'Matrix-Game 公开报道发言人线索',tracks:['游戏世界模型','实时视频生成','空间记忆'],bio:'公开报道中作为 Matrix-Game 3.5 技术突破介绍者出现；个人岗位和团队角色需官方页面核验。',url:'https://finance.sina.com.cn/stock/t/2026-07-20/doc-iniimqsf3039542.shtml'},
+        {id:'huangguan',name:'黄冠',team:'gigaai',level:'pending',role:'极佳视界创始人兼 CEO',tracks:['多模态控制','空间布局生成','空间记忆'],bio:'36Kr 等公开报道称其为极佳视界创始人兼 CEO、清华大学自动化系创新领军工程博士，曾任地平线机器人视觉感知技术负责人等。',url:'https://m.36kr.com/p/3586459879750789'},
+        {id:'gaojiyang',name:'高继扬',team:'galaxea',level:'pending',role:'星海图 CEO',tracks:['多模态控制','实时视频生成'],bio:'证券时报报道中作为星海图 CEO 披露公司技术路线；个人履历待官方主页补充。',url:'https://www.stcn.com/article/detail/3965058.html'},
+        {id:'zhaoxing',name:'赵行',team:'galaxea',level:'pending',role:'星海图 CTO',tracks:['多模态控制','实时视频生成'],bio:'证券时报报道中作为星海图 CTO 披露公司技术路线；个人履历待官方主页补充。',url:'https://www.stcn.com/article/detail/3965058.html'},
+        {id:'hanfengtao',name:'韩峰涛',team:'spiritai',level:'pending',role:'千寻智能创始人兼 CEO',tracks:['多模态控制'],bio:'36Kr 项目信息称其拥有十余年机器人行业经验，曾带队研发和交付工业/协作机器人产品线。',url:'https://pitchhub.36kr.com/project/3051237195749764'},
+        {id:'deanleitersdorf',name:'Dean Leitersdorf',team:'decart',level:'verified',role:'Decart co-founder / CEO 线索',tracks:['游戏世界模型','实时视频生成'],bio:'Decart/Oasis 公开资料中的核心创始人节点，参与实时开放世界模型 Oasis 路线。',url:'https://decart.ai/'},
+        {id:'robertwachen',name:'Robert Wachen',team:'decart',level:'project',role:'Etched co-founder / Oasis 关联作者线索',tracks:['游戏世界模型','实时视频生成'],bio:'Oasis 公开资料显示其代表 Etched 与 Decart 共同参与 Oasis 早期项目。',url:'https://oasis-model.github.io/'},
+        {id:'olivercameron',name:'Oliver Cameron',team:'odyssey',level:'verified',role:'Odyssey CEO / co-founder',tracks:['游戏世界模型','空间布局生成'],bio:'Odyssey 官网和报道中的创始团队节点，自动驾驶背景，推动 general world models。',url:'https://odyssey.ml/'},
+        {id:'jeffhawke',name:'Jeff Hawke',team:'odyssey',level:'verified',role:'Odyssey CTO / co-founder',tracks:['游戏世界模型','空间布局生成'],bio:'Odyssey 官网和报道中的创始团队节点，自动驾驶背景，参与 general world models。',url:'https://odyssey.ml/'},
+        {id:'feifeili',name:'李飞飞 · Fei-Fei Li',team:'worldlabs',level:'verified',role:'World Labs co-founder',tracks:['空间布局生成','空间记忆'],bio:'World Labs 创始团队核心节点，长期研究视觉智能和空间智能；本页作为全球对照节点，不纳入中国公司归因。',url:'https://www.worldlabs.ai/'},
+        {id:'justinjohnson',name:'Justin Johnson',team:'worldlabs',level:'verified',role:'World Labs co-founder',tracks:['空间布局生成','空间记忆'],bio:'World Labs 创始团队节点，研究计算机视觉、生成模型和 3D/空间智能方向。',url:'https://www.worldlabs.ai/'},
+        {id:'benmildenhall',name:'Ben Mildenhall',team:'worldlabs',level:'verified',role:'World Labs co-founder / NeRF researcher',tracks:['空间布局生成','空间记忆'],bio:'World Labs 创始团队节点，NeRF 研究者，代表空间表示和 3D 生成技术路线。',url:'https://www.worldlabs.ai/'},
+        {id:'minzhao',name:'赵敏 · Min Zhao',team:'causal',level:'verified',role:'Causal Forcing 系列核心作者 / 南京大学助理教授',tracks:['实时视频生成','蒸馏/加速','游戏世界模型'],bio:'中科院自动化所博士（2024）；清华 TSAIL 访问学生、博士后；现任南京大学人工智能学院助理教授，领衔 MIN-Lab 与 minWM。',url:'https://gracezhao1997.github.io/'},
+        {id:'hongzhou',name:'朱泓舟 · Hongzhou Zhu',team:'causal',level:'verified',role:'Causal Forcing 共同一作',tracks:['实时视频生成','蒸馏/加速','游戏世界模型'],bio:'清华大学计算机系本科；研究兴趣为扩散生成与视频世界模型。赵敏主页列其为即将入读清华、师从朱军的博士生。',url:'https://zhuhz22.github.io/'},
+        {id:'chongxuan',name:'李崇轩 · Chongxuan Li',team:'causal',level:'verified',role:'通讯/资深作者 · 中国人民大学副教授',tracks:['蒸馏/加速','游戏世界模型'],bio:'清华交叉信息院本科（2014）、清华计算机系博士；曾赴阿姆斯特丹 AMLab，与 Max Welling 合作；现任人大高瓴人工智能学院长聘副教授。',url:'https://zhenxuan00.github.io/'},
+        {id:'junzhu',name:'朱军 · Jun Zhu',team:'causal',level:'verified',role:'通讯作者 · 清华大学教授',tracks:['蒸馏/加速','游戏世界模型'],bio:'清华计算机本硕博；CMU 机器学习系博士后；清华 TSAIL 负责人，IEEE/AAAI Fellow，长期研究统计机器学习、生成模型与动态世界中的推理决策。',url:'http://ml.cs.tsinghua.edu.cn/~jun/biography.shtml'},
+        {id:'haoqi',name:'范浩奇 · Haoqi Fan',team:'seed',level:'verified',role:'字节 Seed 世界模型负责人线索',tracks:['游戏世界模型','多模态控制'],bio:'毕业于卡内基梅隆大学 Robotics Institute；在 Meta FAIR 工作 7 年；代表工作包括 MoCo、SlowFast、MViT、BAGEL，背景横跨视频理解、自监督学习与统一多模态模型。',url:'https://haoqifan.github.io/'},
+        {id:'chuyang',name:'Chuyang Zhao',team:'pfm',level:'project',role:'PFM 第一作者',tracks:['蒸馏/加速'],bio:'PFM 官方实现维护者；GitHub 公开位置为北京。教育与当前任职未在已核验主页中披露。',url:'https://github.com/ZhaoChuyang'},
+        {id:'yifeisong',name:'Yifei Song',team:'pfm',level:'project',role:'PFM 作者',tracks:['蒸馏/加速'],bio:'PFM 论文作者之一；公开检索主要能确认其项目署名，个人主页、教育和岗位信息仍需进一步核验。',url:'https://arxiv.org/abs/2607.03524'},
+        {id:'hongfawang',name:'Hongfa Wang',team:'pfm',level:'project',role:'PFM 作者',tracks:['蒸馏/加速'],bio:'PFM 论文作者之一；同名公开信息较多，本页只保留论文确认关系，不合并未核验履历。',url:'https://arxiv.org/abs/2607.03524'},
+        {id:'haoyang',name:'Haoyang Huang',team:'pfm',level:'project',role:'PFM / Echo-Memory 交叉作者',tracks:['蒸馏/加速','空间记忆'],bio:'同时出现在 PFM 与 Echo-Memory 作者表，是 Joy Future Academy 内加速与记忆方向的公开交叉节点。个人履历待核。',url:'https://arxiv.org/search/?query=Haoyang+Huang&searchtype=author'},
+        {id:'nanduan',name:'Nan Duan',team:'pfm',level:'project',role:'PFM / Echo-Memory 资深交叉作者',tracks:['蒸馏/加速','空间记忆'],bio:'同时位于 PFM 与 Echo-Memory 作者表末位，是两个京东项目的稳定交叉节点；本页不据姓名推断个人国籍。',url:'https://arxiv.org/search/?query=Nan+Duan&searchtype=author'},
+        {id:'wayne',name:'Wayne King',team:'echo-memory',level:'project',role:'Echo-Memory 第一作者',tracks:['空间记忆','游戏世界模型'],bio:'Echo-Memory 第一作者；项目系统比较四类记忆机制。个人教育与任职尚未在项目页披露。',url:'https://arxiv.org/abs/2606.09803'},
+        {id:'zeyue',name:'Zeyue Xue',team:'echo-memory',level:'project',role:'Echo-Memory 作者',tracks:['空间记忆'],bio:'Echo-Memory 核心作者之一；个人履历待核。',url:'https://arxiv.org/abs/2606.09803'},
+        {id:'yuxuan',name:'Yuxuan Bian',team:'echo-memory',level:'project',role:'Echo-Memory 作者',tracks:['空间记忆'],bio:'Echo-Memory 核心作者之一；个人履历待核。',url:'https://arxiv.org/abs/2606.09803'},
+        {id:'zelin',name:'郜泽霖 · Zelin Gao',team:'lingbot',level:'verified',role:'LingBot-World 2.0 第一作者 / HKUST 博士生',tracks:['游戏世界模型','实时视频生成','多模态控制'],bio:'个人主页显示其为香港科技大学博士生，导师为 Yinghao Xu；浙大硕士、吉林大学本科。主页明确列出 LingBot-World-Infinity 与 LingBot-World。',url:'https://zelingao98.github.io/'},
+        {id:'qiuyu',name:'Qiuyu Wang',team:'lingbot',level:'project',role:'LingBot-World 2.0 作者',tracks:['游戏世界模型','实时视频生成'],bio:'LingBot-World 2.0 作者；个人履历待核。',url:'https://arxiv.org/abs/2607.07534'},
+        {id:'jiapeng',name:'Jiapeng Zhu',team:'lingbot',level:'project',role:'LingBot-World 2.0 作者',tracks:['游戏世界模型','多模态控制'],bio:'LingBot-World 2.0 作者；个人履历待核。',url:'https://arxiv.org/abs/2607.07534'},
+        {id:'yinghao',name:'徐颖豪 · Yinghao Xu',team:'lingbot',level:'verified',role:'HKUST CSE 助理教授 / Robbyant 前 Staff Research Scientist',tracks:['游戏世界模型','实时视频生成','空间布局生成'],bio:'个人主页显示其现任香港科技大学 CSE 助理教授，领导 HKUST XU Lab；曾在 Robbyant 领导世界模型与具身智能研究组。',url:'https://justimyhxu.github.io/'},
+        {id:'yujun',name:'沈宇俊 · Yujun Shen',team:'lingbot',level:'verified',role:'Robbyant Chief Scientist / Ant Research 互动智能实验室负责人',tracks:['游戏世界模型','实时视频生成','多模态控制'],bio:'个人主页显示其任 Robbyant Chief Scientist，并领导蚂蚁研究院 Interactive Intelligence Lab，研究方向覆盖生成模型、空间智能与具身智能。',url:'https://shenyujun.github.io/'},
+        {id:'zehong',name:'Zehong Shen',team:'lingbot',level:'verified',role:'LingBot 生态作者 / 视频生成研究者',tracks:['游戏世界模型','实时视频生成','多模态控制'],bio:'个人主页显示其博士阶段在蚂蚁集团 Robbyant Team 实习，参与 LingBot、DreamRunner、I2VEdit 等视频生成/世界模型相关项目。',url:'https://zehongs.github.io/'},
+        {id:'haoouyang',name:'欧阳豪 · Hao Ouyang',team:'lingbot',level:'verified',role:'Ant Group Research Scientist / LingBot-World Project Lead',tracks:['游戏世界模型','实时视频生成','长视频生成'],bio:'个人主页显示其现任蚂蚁集团 Research Scientist；博士毕业于 HKUST，曾在 Google Research、MSRA、Ant Research、Tencent、商汤实习。主页将 LingBot-World 标为 Project Lead。',url:'https://ken-ouyang.github.io/'},
+        {id:'yanpei',name:'Yanpei Cao',team:'eden',level:'pending',role:'VAST GitHub 公开组织成员',tracks:['空间布局生成','游戏世界模型'],bio:'VAST-AI-Research GitHub 公开成员；目前没有 Project Eden 项目级署名证据。',url:'https://github.com/pookiefoof'},
+        {id:'yuanliang',name:'Yuan Liang',team:'eden',level:'pending',role:'VAST GitHub 公开组织成员',tracks:['空间布局生成','游戏世界模型'],bio:'VAST-AI-Research GitHub 公开成员；目前没有 Project Eden 项目级署名证据。',url:'https://github.com/tormentliang'},
+        {id:'yihua',name:'Yihua',team:'eden',level:'pending',role:'VAST GitHub 公开组织成员',tracks:['空间布局生成'],bio:'VAST-AI-Research GitHub 公开成员；目前没有 Project Eden 项目级署名证据。',url:'https://github.com/yihua7'},
+        {id:'xintao',name:'Xintao Wang',team:'kling',level:'project',role:'Kling-Omni 作者',tracks:['多模态控制'],bio:'Kling-Omni 完整作者表中的公开节点；后续扩展采用其个人主页公开履历。',url:'https://xinntao.github.io/'},
+        {id:'pengfei',name:'Pengfei Wan',team:'kling',level:'project',role:'Kling-Omni 作者 / 可灵方向公开署名节点',tracks:['多模态控制','实时视频生成'],bio:'Kling-Omni 与可灵公开视频生成论文中的高频署名作者；个人主页和教育履历尚未充分核验。',url:'https://arxiv.org/search/?query=Pengfei+Wan+Kling&searchtype=all'},
+        {id:'kungai',name:'Kun Gai',team:'kling',level:'project',role:'Kling-Omni 作者',tracks:['多模态控制'],bio:'Kling-Omni 完整作者表中的公开节点；个人履历待核。',url:'https://arxiv.org/abs/2512.16776'},
+        {id:'jialu',name:'Jialu Chen',team:'kling',level:'project',role:'Kling-Omni 首位列名作者',tracks:['多模态控制'],bio:'Kling Team 集体名之后的首位列名作者；个人履历待核。',url:'https://arxiv.org/abs/2512.16776'}
+      ];
+      const personExtensions = {
+
+        yongluli:{education:'公开主页显示为上海交通大学长聘教轨副教授；完整学位链条见个人主页',previous:'RhOS Lab / Shanghai Innovation Institute',contribution:'RhOS Lab PI，连接物理推理、具身智能和多人世界模型 Khora',projects:'Khora、RhOS-World、IPR-1',relation:'上海交大学术团队与 RhOS.ai 公司化方向的关键人物',signal:'具身 AI、物理推理、机器人世界模型、数据闭环',social:'个人主页、Google Scholar、GitHub、LinkedIn'},
+        renjiezhao:{contribution:'Khora 首位作者，负责多人/多智能体世界模型公开论文节点',projects:'Population-Scalable Multi-Agent World Modeling / Khora',relation:'RhOS.ai、SJTU、OphilusAI 论文合作链条',signal:'优先核验个人主页、教育背景和后续项目连续性'},
+        yuxiangwu:{contribution:'Khora 作者，参与多人世界模型研究',projects:'Khora',relation:'RhOS.ai / SJTU 作者链条',signal:'待补个人主页与具体贡献'},
+        mingyuzhang:{contribution:'Khora 作者，参与多人世界模型研究',projects:'Khora',relation:'RhOS.ai / SJTU 作者链条',signal:'待补个人主页与具体贡献'},
+        jiaxinli:{contribution:'Khora 作者，参与多人世界模型研究',projects:'Khora',relation:'RhOS.ai / SJTU 作者链条',signal:'待补个人主页与具体贡献'},
+        chriszhu:{previous:'YAHAHA Studios / OphilusAI 公开线索',contribution:'3D UGC 游戏创作平台与 OphilusAI 世界生成方向的创业节点',projects:'YAHAHA、OphilusAI、Lumera 相关公司线索',relation:'游戏 UGC 平台与引擎原生世界重建方向的商业化连接点',signal:'创始人/产品化能力强，但 OphilusAI 当前岗位需继续核验',social:'LinkedIn 搜索、YAHAHA 公司档案'},
+        jianyizhu:{contribution:'Lumera 论文作者，参与可编辑 3D 世界重建',projects:'Lumera',relation:'OphilusAI 论文作者链条',signal:'同名风险高，暂不合并 LinkedIn 金融从业者信息'},
+        yiminsheng:{contribution:'Lumera 论文作者，参与对象/灯光/引擎原生场景解析',projects:'Lumera',relation:'OphilusAI 作者链条',signal:'待补主页、教育和岗位'},
+        sisili:{contribution:'Khora 与 Lumera 交叉作者，连接多人世界模型和 3D 场景重建',projects:'Khora、Lumera',relation:'RhOS.ai / OphilusAI 双项目交叉节点',signal:'优先核验个人背景和跨团队角色'},
+        haomin:{previous:'YAHAHA CTO 公开公司档案',contribution:'3D UGC/游戏创作平台技术负责人线索',projects:'YAHAHA',relation:'OphilusAI/Yahaha 公司关系待核',signal:'需要 LinkedIn、官网或工商资料确认当前职位'},
+        pengfeizhang:{previous:'YAHAHA COO & Managing Director 公开公司档案',contribution:'YAHAHA 商业和运营节点',projects:'YAHAHA',relation:'OphilusAI/Yahaha 公司关系待核',signal:'需要 LinkedIn、官网或工商资料确认当前职位'},
+        chengyu:{contribution:'Matrix-Game 3.5 技术发布线索，公开报道中解释 Patch 记忆和实时推理',projects:'Matrix-Game 3.5',relation:'昆仑万维 Skywork 世界模型公开发言节点',signal:'待补个人主页和团队职位'},
+        huangguan:{education:'媒体报道称清华大学自动化系创新领军工程博士',previous:'媒体报道称曾任地平线机器人视觉感知技术负责人、鉴智机器人合伙人/算法副总裁',contribution:'极佳视界物理 AI 与 GigaWorld 公司路线负责人',projects:'GigaWorld、GigaBrain、Maker',relation:'清华系机器人视觉背景与具身世界模型创业节点',signal:'物理 AI、机器人数据引擎、世界模型平台'},
+        gaojiyang:{contribution:'星海图公司技术路线披露和开发者生态节点',projects:'Fast-WAM、G0.5、Kengo',relation:'模型、本体和真实数据计划的公司负责人',signal:'具身智能商业化、数据闭环和机器人平台'},
+        zhaoxing:{contribution:'星海图技术路线披露节点，参与 VLA / Fast-WAM / 控制基础模型方向',projects:'Fast-WAM、G0.5、Kengo',relation:'星海图模型技术负责人线索',signal:'VLA、低延迟世界行动模型、机器人控制'},
+        hanfengtao:{contribution:'千寻智能创始人兼 CEO，机器人产品线和商业落地经验节点',projects:'Spirit AI、Spirit VLA',relation:'机器人硬件、VLA 和具身大模型的公司化节点',signal:'机器人全栈、生产力场景、具身数据闭环'},
+        deanleitersdorf:{contribution:'Decart 实时世界模型和 Oasis 路线创始节点',projects:'Oasis、Oasis 3、Decart DOS',relation:'实时推理基础设施与开放世界模型商业化',signal:'低延迟基础设施、实时生成和 Physical AI API'},
+        robertwachen:{contribution:'Etched 与 Oasis 早期联合发布节点',projects:'Oasis 500M / Open Oasis',relation:'硬件加速和世界模型推理的交叉节点',signal:'推理芯片、实时生成和开源权重'},
+        olivercameron:{previous:'自动驾驶创业背景',contribution:'Odyssey general world models 公司路线负责人',projects:'Explorer、Odyssey-2',relation:'自动驾驶世界建模经验迁移到通用世界模型',signal:'3D 世界生成、影视游戏管线、长期融资能力'},
+        jeffhawke:{previous:'自动驾驶技术背景',contribution:'Odyssey 技术负责人节点',projects:'Explorer、Odyssey-2',relation:'自动驾驶建模与通用世界模型技术迁移',signal:'多模态因果建模、3D 场景生成'},
+        feifeili:{previous:'Stanford / AI4ALL 等公开背景',contribution:'World Labs 空间智能公司创始节点',projects:'World Labs、Marble',relation:'视觉智能学术积累到 3D 世界生成创业路线',signal:'空间智能、3D 视觉、世界模型战略'},
+        justinjohnson:{contribution:'World Labs 创始团队技术节点',projects:'World Labs、Marble',relation:'视觉生成与 3D 空间智能',signal:'3D 生成、场景理解、模型研究'},
+        benmildenhall:{contribution:'NeRF 代表研究者，World Labs 空间表示技术节点',projects:'NeRF、World Labs、Marble',relation:'神经场景表示到可生成 3D 世界',signal:'3D 表示、空间记忆、可下载世界资产'},
+        minzhao:{education:'中科院自动化所博士（2024）',previous:'清华 TSAIL 访问学生、博士后',contribution:'Causal Forcing 系列与 minWM 核心推进者',projects:'Causal Forcing、Causal Forcing++、minWM',relation:'高校研究与生数世界模型生态的关键连接点',signal:'适合关注因果视频、少步生成与动作条件世界模型'},
+        hongzhou:{education:'清华大学计算机系本科；博士阶段信息见个人主页',previous:'清华生成模型研究背景',contribution:'Causal Forcing 共同一作，聚焦扩散生成与视频世界模型',projects:'Causal Forcing、Causal Forcing++',relation:'赵敏、朱军与 TSAIL 研究链条中的青年核心作者',signal:'强潜力研究人才，方向集中且连续'},
+        chongxuan:{education:'清华交叉信息院本科；清华计算机系博士',previous:'阿姆斯特丹 AMLab，与 Max Welling 合作',contribution:'Causal Forcing 资深/通讯作者，长期研究深度生成模型',projects:'Causal Forcing、扩散与变分生成研究',relation:'清华 TSAIL 与中国人民大学高瓴人工智能学院连接点',signal:'生成模型理论、训练目标与青年团队建设'},
+        junzhu:{education:'清华大学计算机本硕博',previous:'卡内基梅隆大学机器学习系博士后',contribution:'TSAIL 负责人，推动生成模型与动态世界推理决策研究',projects:'Causal Forcing、贝叶斯机器学习、生成模型',relation:'清华学术团队的资深负责人和人才培养节点',signal:'适合关注团队谱系、学术合作和生成模型长期布局'},
+        haoqi:{education:'卡内基梅隆大学 Robotics Institute',previous:'Meta FAIR 约 7 年',contribution:'从视频理解、自监督学习拓展至统一多模态和世界模型',projects:'MoCo、SlowFast、MViT、BAGEL',relation:'国际视频研究积累与字节统一多模态路线的连接点',signal:'团队搭建、视频基础模型与统一多模态方向'},
+        yifeisong:{contribution:'PFM 论文作者，参与少步 flow matching 训练目标',projects:'Perceptual Flow Matching',relation:'京东 PFM 作者链条节点',signal:'需要社媒/主页核验后再补教育和岗位',social:'arXiv 作者页、Google Scholar 搜索'},
+        hongfawang:{contribution:'PFM 论文作者，参与图像/视频少步生成',projects:'Perceptual Flow Matching',relation:'京东 PFM 作者链条节点',signal:'同名风险较高，暂不合并外部履历',social:'arXiv 作者页、Google Scholar 搜索'},
+        nanduan:{name:'段楠 · Nan Duan',level:'verified',role:'京东集团副总裁 / 京东未来研究院副院长',bio:'负责语言、语音、视觉与具身智能等基础模型研究；此前任阶跃星辰 Technical Fellow、微软亚洲研究院资深首席研究员。公开主页列出 200+ 论文、4 万+ 引用。',url:'https://nanduan.github.io/',education:'公开主页未列出可直接核验的完整学位链条',previous:'阶跃星辰 Technical Fellow；微软亚洲研究院资深首席研究员',contribution:'JoyAI 多模态与 Echo 世界模型生态的资深负责人和跨项目作者',projects:'PFM、Echo-Memory、OmniForcing、OpenSpatial、NUWA 系列',relation:'连接京东实时音视频、空间智能、长视频与多模态基础模型',signal:'基础模型研究领导、跨模态团队组织与世界模型平台化'},
+        haoyang:{contribution:'PFM、Echo-Memory、OmniForcing、Self Gradient Forcing 等方向的公开交叉作者',projects:'PFM、Echo-Memory、OmniForcing、Self Gradient Forcing',relation:'京东生成加速、空间记忆、实时音视频和长视频的高连接度节点',signal:'优先核验其当前岗位、教育背景和具体项目分工'},
+        zeyue:{contribution:'Echo-Memory 作者，并参与 OmniForcing 与 Self Gradient Forcing',projects:'Echo-Memory、OmniForcing、Self Gradient Forcing',relation:'空间记忆、实时联合音视频与长视频外推的交叉节点',signal:'跨方向连续署名，值得优先补充个人履历'},
+        zelin:{education:'浙江大学硕士；吉林大学本科；香港科技大学博士生',previous:'导师 Yinghao Xu，HKUST XU Lab',contribution:'LingBot-World-Infinity 第一作者，围绕交互式世界模型与无限时域生成',projects:'LingBot-World-Infinity、LingBot-World',relation:'HKUST XU Lab 与 Robbyant/LingBot 生态连接节点',signal:'年轻一作，世界模型方向高度集中',social:'个人主页、Google Scholar、GitHub'},
+        yinghao:{education:'清华大学博士；中国科学技术大学本科',previous:'Robbyant Staff Research Scientist，曾领导世界模型与具身智能研究组',contribution:'搭建 HKUST XU Lab，研究 3D/4D、视频生成、数字人与世界模型',projects:'LingBot-World、DreamRunner、I2VEdit、MotionCrafter',relation:'把 3D/数字人/视频生成能力连接到交互世界模型',signal:'适合关注空间布局生成、人物/动作控制与视频世界模型结合',social:'个人主页、Google Scholar、GitHub、LinkedIn'},
+        yujun:{education:'个人主页列出清华大学博士与本科背景',previous:'Ant Research、Robbyant Chief Scientist',contribution:'领导 Interactive Intelligence Lab，研究生成模型、空间智能、具身智能和物理智能',projects:'LingBot-World 2.0、Robbyant 视频世界模型生态',relation:'蚂蚁灵波团队组织和生成模型研究负责人节点',signal:'团队领导、可控生成、视频世界模型与产品化研究',social:'个人主页、Robbyant 团队页、Google Scholar'},
+        zehong:{education:'个人主页显示为博士研究者，具体学校信息以主页为准',previous:'蚂蚁集团 Robbyant Team 实习',contribution:'参与 LingBot、DreamRunner、I2VEdit 等视频生成和可控编辑项目',projects:'LingBot、DreamRunner、I2VEdit、VideoDirectorGPT',relation:'LingBot 1.0/视频编辑/导演式控制到 LingBot 2.0 生态的关联节点',signal:'多模态视频编辑、动作/文本控制与世界模型交互',social:'个人主页、Google Scholar、GitHub'},
+        haoouyang:{education:'香港科技大学博士；浙江大学本科',previous:'Google Research、MSRA、Ant Research、Tencent、SenseTime 实习经历',contribution:'LingBot-World Project Lead，并参与 VideoDirectorGPT、I2VEdit、DreamRunner 等可控视频生成项目',projects:'LingBot-World、VideoDirectorGPT、I2VEdit、DreamRunner、MotionCraft',relation:'从视频编辑/导演控制到交互式世界模型的项目负责人节点',signal:'项目领导、长视频控制、世界模型交互与系统落地',social:'个人主页、Google Scholar、LinkedIn、GitHub'},
+        xintao:{name:'王鑫涛 · Xintao Wang',level:'verified',role:'可灵团队多模态生成与 Post-Training 技术负责人',bio:'现负责可灵多模态生成/Omni、4K 视频、RL 后训练及下一代统一模型。此前任腾讯 ARC Lab / AI Lab 高级研究员。',url:'https://xinntao.github.io/',education:'浙江大学本科；香港中文大学 MMLab 博士，导师为汤晓鸥与 Chen Change Loy',previous:'腾讯 ARC Lab / 腾讯 AI Lab Senior Staff Researcher',contribution:'从图像复原、视频生成推进到可灵统一多模态与后训练',projects:'Real-ESRGAN、GFPGAN、T2I-Adapter、VideoCrafter、PhotoMaker、ToonCrafter、InstantMesh、Kling',relation:'连接腾讯视觉生成技术谱系与快手可灵统一模型路线',signal:'公开招聘统一多模态、视频 next-state prediction 预训练与 RL 人才'},
+        pengfei:{contribution:'可灵视频生成与 Kling-Omni 公开作者链条中的关键工程/研究节点',projects:'Kling、Kling-Omni、可灵公开视频生成技术报告',relation:'可灵视频生成到多模态控制的连续署名节点',signal:'优先核验个人主页、岗位和具体分工',social:'arXiv / Google Scholar 搜索'},
+        yanpei:{relation:'仅确认 VAST GitHub 组织关联；Project Eden 项目归属待核',signal:'需补充个人主页或官方项目署名后再升级证据等级'},
+        yuanliang:{relation:'仅确认 VAST GitHub 组织关联；Project Eden 项目归属待核',signal:'需补充个人主页或官方项目署名后再升级证据等级'},
+        yihua:{relation:'仅确认 VAST GitHub 组织关联；Project Eden 项目归属待核',signal:'需补充个人主页或官方项目署名后再升级证据等级'}
+      };
+      people.forEach(person=>Object.assign(person,personExtensions[person.id]||{}));
+      people.push(
+        {id:'zhangdi',name:'张迪',team:'happy',level:'pending',role:'HappyOyster / ATH 媒体关联线索',tracks:['游戏世界模型','多模态控制','实时视频生成'],bio:'公开搜索与媒体线索将其与阿里世界模型、HappyOyster/HappyHorse 相关组织联系在一起；尚未找到官方项目署名或个人主页直接确认研发贡献。',contribution:'组织和产品线索，具体技术贡献待官方披露',projects:'HappyOyster、HappyHorse（媒体线索）',relation:'阿里 ATH / 未来生活实验室相关待核节点',signal:'需要持续跟踪官方演讲、招聘页、专利、论文和个人社媒',social:'Google 搜索、媒体报道线索',url:'https://www.google.com/search?q=%E5%BC%A0%E8%BF%AA+HappyOyster+%E9%98%BF%E9%87%8C'},
+        {id:'zhengbo',name:'郑波',team:'happy',level:'pending',role:'HappyOyster / 阿里组织关联线索',tracks:['游戏世界模型','多模态控制','实时视频生成'],bio:'公开搜索中可见其与阿里创新业务、HappyOyster/相关产品线的关联线索；但官方未披露 HappyOyster 研发作者表，本页不推断具体分工。',contribution:'组织关联线索，具体模型研发贡献待核',projects:'HappyOyster（媒体线索）',relation:'阿里世界模型产品线潜在管理或组织节点',signal:'优先核验阿里官方稿、行业访谈、专利与公开演讲',social:'Google 搜索、媒体报道线索',url:'https://www.google.com/search?q=%E9%83%91%E6%B3%A2+HappyOyster+%E9%98%BF%E9%87%8C'},
+        {id:'fanbao',name:'鲍凡 · Fan Bao',team:'causal',level:'verified',role:'生数科技联合创始人兼 CTO',tracks:['实时视频生成','蒸馏/加速','游戏世界模型'],bio:'清华大学计算机本科、博士，博士阶段在 TSAIL 师从朱军与张钹；长期推动扩散模型理论、统一生成模型与 Vidu 商业化视频模型。',education:'清华大学计算机本科、博士',previous:'清华 TSAIL 研究背景',contribution:'把 Analytic-DPM、U-ViT、UniDiffuser 等基础研究延伸到 Vidu 与实时世界模型生态',projects:'Analytic-DPM、U-ViT、UniDiffuser、Vidu',relation:'清华生成模型研究与生数产品研发之间的关键产业化节点',signal:'生成模型基础研究、视频模型系统与创业团队技术领导',url:'https://baofff.github.io/'},
+        {id:'guande',name:'Guande He',team:'causal',level:'project',role:'Causal Forcing 系列作者',tracks:['实时视频生成','蒸馏/加速'],bio:'连续出现在 Causal Forcing 相关公开作者链条中，处于因果视频生成与少步蒸馏方向。个人教育和当前岗位仍待权威主页核验。',contribution:'Causal Forcing 研究与实验推进',projects:'Causal Forcing',relation:'清华 TSAIL 与生数合作作者链条',signal:'优先核验个人主页、当前任职与后续项目连续性',url:'https://arxiv.org/abs/2602.02214'},
+        {id:'yaofeng',name:'Yaofeng Su',team:'echo-memory',level:'project',role:'Echo 生态跨项目作者',tracks:['空间记忆','实时视频生成','多模态控制'],bio:'出现在 Echo-Memory 与 OmniForcing 作者表，连接空间记忆和实时联合音视频生成。个人履历待核。',contribution:'空间记忆与联合音视频生成研究',projects:'Echo-Memory、OmniForcing',relation:'Echo Team 两条技术线的交叉节点',signal:'关注跨模态生成与世界模型记忆的复合背景',url:'https://github.com/OmniForcing/OmniForcing'},
+        {id:'yuming',name:'Yuming Li',team:'echo-memory',level:'project',role:'Echo 生态跨项目作者',tracks:['空间记忆','实时视频生成'],bio:'出现在 Echo-Memory 与 OmniForcing 作者表；个人教育、岗位与项目分工待核。',contribution:'空间记忆与实时音视频生成研究',projects:'Echo-Memory、OmniForcing',relation:'Echo Team 跨项目作者',signal:'需要补充个人主页与作者贡献说明',url:'https://github.com/OmniForcing/OmniForcing'},
+        {id:'haoran',name:'Haoran Li',team:'echo-memory',level:'project',role:'Echo 生态多项目作者',tracks:['空间记忆','实时视频生成','长视频生成'],bio:'同时出现在 Echo-Memory、OmniForcing 与 Self Gradient Forcing 作者链条，覆盖记忆、实时联合音视频与长视频外推。',contribution:'多项目世界模型与视频生成研究',projects:'Echo-Memory、OmniForcing、Self Gradient Forcing',relation:'Echo 生态的高连接度公开作者',signal:'建议优先核验个人背景与三项工作的具体职责',url:'https://github.com/OmniForcing/OmniForcing'},
+        {id:'junhao',name:'Junhao Zhuang',team:'echo-memory',level:'project',role:'Self Gradient Forcing 第一作者 / Echo-Memory 作者',tracks:['长视频生成','空间记忆'],bio:'Self Gradient Forcing 首位作者，并参与 Echo-Memory，公开研究重点横跨原生长视频外推与世界模型记忆。',contribution:'长视频外推方法与空间记忆研究',projects:'Self Gradient Forcing、Echo-Memory',relation:'Echo Team 长视频方向的青年关键作者',signal:'优先关注长视频训练、外推稳定性与个人成长轨迹',url:'https://github.com/zhuang2002/Self_Gradient_Forcing'},
+        {id:'simonsong',name:'宋亚宸 · Simon Song',team:'eden',level:'pending',role:'VAST / Tripo AI 创始人；Eden 项目归属待核',tracks:['游戏世界模型','空间布局生成','空间记忆'],bio:'公开资料可确认其 VAST 创始人身份，但 Project Eden 官方页未给出个人署名，不能据公司职位推定项目作者或技术负责人。',contribution:'公司级产品与研究方向领导，Eden 个人贡献未披露',projects:'Tripo AI；Project Eden 仅公司级关联',relation:'VAST 公司层面的关键人才节点',signal:'等待官方技术报告、演讲或项目作者页确认',url:'https://www.tripo3d.ai/research/project-eden'}
+      );
+      const state = {query:'',track:'all',level:'all',team:'causal',school:'interactive',noteTarget:'global',view:'schools'};
+      const levelText = {verified:'已核验履历',project:'项目 / 论文确认',pending:'关联待核实'};
+      const noteStorageKey = 'world-model-talent-map-notes-v2';
+      let teamNotes = {};
+      try {
+        teamNotes = JSON.parse(localStorage.getItem(noteStorageKey) || '{}');
+        if (!Object.keys(teamNotes).length) {
+          const legacy = JSON.parse(localStorage.getItem('world-model-talent-map-team-notes-v1') || '{}');
+          Object.entries(legacy).forEach(([id,text])=>teamNotes[`team:${id}`]={text,color:'yellow'});
+        }
+      } catch (error) { teamNotes = {}; }
+      const noteColors = {yellow:'var(--viz-series-6)',blue:'var(--viz-series-1)',green:'var(--viz-series-3)',red:'var(--viz-series-2)',purple:'var(--viz-series-5)'};
+      const normalizeNote = value => typeof value === 'string' ? {text:value,color:'yellow'} : {text:'',color:'yellow',...(value||{})};
+      const getNote = key => normalizeNote(teamNotes[key]);
+      const saveNotes = () => {
+        try { localStorage.setItem(noteStorageKey, JSON.stringify(teamNotes)); return true; }
+        catch (error) { return false; }
+      };
+      const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+      const initials = name => name.split(/[ ·]/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+      const teamById = id => teams.find(t=>t.id===id);
+      const personById = id => people.find(p=>p.id===id);
+      const matches = (item) => {
+        const blob = [item.name,item.sub,item.role,item.bio,item.summary,item.education,item.previous,item.contribution,item.projects,item.relation,item.signal,item.social,...(item.tracks||[]),...(item.facts||[]).flat()].filter(Boolean).join(' ').toLowerCase();
+        return (!state.query || blob.includes(state.query)) && (state.track==='all' || (item.tracks||[]).includes(state.track)) && (state.level==='all' || item.level===state.level);
+      };
+      const uniqueAuthors = new Set(teams.flatMap(t=>t.roster.filter(x=>!x.includes('未公开')&&!x.includes('集体署名')&&!x.includes('公开成员')&&!x.includes('其余成员'))));
+      root.querySelector('#wm-author-count').textContent = uniqueAuthors.size;
+      root.querySelector('#wm-profile-count').textContent = people.filter(p=>p.level==='verified').length;
+      const trackSelect = root.querySelector('#wm-track');
+      tracks.forEach(t=>trackSelect.insertAdjacentHTML('beforeend',`<option value="${t}">${t}</option>`));
+      root.querySelector('#wm-sources').innerHTML = sources.map(([n,u])=>`<a href="${u}" target="_blank" rel="noreferrer">${n}</a>`).join('');
+      const colorPickerHTML = (prefix,note) => `<div class="wm-color-picker" aria-label="备注颜色"><span>标注颜色</span>${Object.entries(noteColors).map(([id,color])=>`<button class="wm-color-swatch" type="button" style="--swatch:${color}" data-note-color="${id}" aria-label="${{yellow:'待核实',blue:'技术判断',green:'重点人才',red:'风险',purple:'后续跟进'}[id]}" aria-pressed="${note.color===id}"></button>`).join('')}</div>`;
+      const noteBoxHTML = (prefix,key,title,placeholder) => {
+        const note=getNote(key); const color=noteColors[note.color]||noteColors.yellow;
+        return `<section class="wm-notes" style="--note-color:${color}" data-note-box="${prefix}" data-note-key="${key}"><div class="wm-notes-head"><div class="wm-notes-title"><i data-lucide="sticky-note" aria-hidden="true"></i><h3>${title}</h3></div><span class="wm-note-status" data-note-summary>${note.text?'已保存备注':'自动保存在当前浏览器'}</span></div>${colorPickerHTML(prefix,note)}<label class="form-label" for="${prefix}-text">备注内容</label><textarea id="${prefix}-text" class="form-control" rows="6" maxlength="4000" placeholder="${placeholder}">${escapeHTML(note.text)}</textarea><div class="wm-note-actions"><span class="wm-note-status" data-note-status aria-live="polite">${note.text?'已自动保存':'输入后自动保存'}</span><button class="btn btn-ghost" data-note-clear type="button"><i data-lucide="trash-2" aria-hidden="true"></i> 清空</button></div></section>`;
+      };
+      const bindNoteBox = box => {
+        if (!box) return;
+        const key=box.dataset.noteKey; const input=box.querySelector('textarea'); const status=box.querySelector('[data-note-status]'); let timer;
+        const commit = () => { status.textContent=saveNotes()?'已自动保存':'已保存在本次会话'; };
+        input.addEventListener('input',()=>{const note=getNote(key);note.text=input.value;teamNotes[key]=note;status.textContent='保存中…';clearTimeout(timer);timer=setTimeout(commit,250);});
+        box.querySelectorAll('[data-note-color]').forEach(button=>button.addEventListener('click',()=>{const note=getNote(key);note.color=button.dataset.noteColor;teamNotes[key]=note;box.style.setProperty('--note-color',noteColors[note.color]);box.querySelectorAll('[data-note-color]').forEach(x=>x.setAttribute('aria-pressed',String(x===button)));commit();}));
+        box.querySelector('[data-note-clear]').addEventListener('click',()=>{if(!input.value||!window.confirm('清空这条备注？'))return;input.value='';delete teamNotes[key];box.querySelector('[data-note-summary]').textContent='自动保存在当前浏览器';status.textContent=saveNotes()?'备注已清空':'本次会话备注已清空';});
+      };
+      const renderSchools = () => {
+        const visibleTeams=teams.filter(matches);
+        root.querySelector('#wm-school-grid').innerHTML=schools.map((school,index)=>{const members=school.teamIds.map(teamById).filter(team=>team&&visibleTeams.includes(team));const note=getNote(`school:${school.id}`);return `<article class="card wm-school" style="--school-color:${school.color}"><div class="wm-school-head"><div><h3>${school.name}</h3><span class="wm-role">${school.description}</span></div><span class="wm-school-index">0${index+1} · ${members.length} 队</span></div><p class="wm-school-question">${school.question}</p><div class="wm-school-teams">${members.length?members.map(team=>`<button class="wm-school-team" type="button" data-school-team="${team.id}">${team.name}</button>`).join(''):'<span class="wm-note">当前筛选下无团队</span>'}</div><button class="btn btn-ghost wm-school-note-toggle" type="button" data-school-note="${school.id}"><i data-lucide="${note.text?'notebook-pen':'plus'}" aria-hidden="true"></i> ${note.text?'编辑流派笔记':'添加流派笔记'}</button><div class="wm-school-editor" data-school-editor="${school.id}" hidden>${noteBoxHTML(`school-${school.id}`,`school:${school.id}`,`${school.name}笔记`,'记录赛道判断、关键团队、人才流动或待验证假设…')}</div></article>`}).join('');
+        root.querySelectorAll('[data-school-team]').forEach(btn=>btn.addEventListener('click',()=>{state.team=btn.dataset.schoolTeam;setView('map');renderMap();}));
+        root.querySelectorAll('[data-school-note]').forEach(btn=>btn.addEventListener('click',()=>{const editor=root.querySelector(`[data-school-editor="${btn.dataset.schoolNote}"]`);editor.hidden=!editor.hidden;if(!editor.hidden)editor.querySelector('textarea').focus();}));
+        root.querySelectorAll('[data-school-editor] [data-note-box]').forEach(bindNoteBox);
+        root.querySelector('#wm-crosscutting').innerHTML=capabilityLayers.map(layer=>{const note=getNote(`layer:${layer.id}`);return `<article class="wm-layer" style="--layer-color:${layer.color}"><h3>${layer.name}</h3><p>${layer.description}</p><button class="btn btn-ghost wm-school-note-toggle" type="button" data-layer-note="${layer.id}"><i data-lucide="${note.text?'notebook-pen':'plus'}" aria-hidden="true"></i> ${note.text?'编辑能力笔记':'添加能力笔记'}</button><div class="wm-school-editor" data-layer-editor="${layer.id}" hidden>${noteBoxHTML(`layer-${layer.id}`,`layer:${layer.id}`,`${layer.name}笔记`,'记录共性技术判断、相关团队和待验证问题…')}</div></article>`}).join('');
+        root.querySelectorAll('[data-layer-note]').forEach(btn=>btn.addEventListener('click',()=>{const editor=root.querySelector(`[data-layer-editor="${btn.dataset.layerNote}"]`);editor.hidden=!editor.hidden;if(!editor.hidden)editor.querySelector('textarea').focus();}));
+        root.querySelectorAll('[data-layer-editor] [data-note-box]').forEach(bindNoteBox);
+        if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+      };
+      const renderMatrix = () => {
+        root.querySelector('#wm-matrix-head').innerHTML = '<th>团队 / 项目</th>'+tracks.map(t=>`<th>${t}</th>`).join('');
+        const visible = teams.filter(matches);
+        root.querySelector('#wm-matrix-body').innerHTML = visible.length ? visible.map(team=>`<tr><td><button class="wm-team-btn" type="button" data-team="${team.id}"><strong>${team.name}</strong><small>${team.sub}</small></button></td>${tracks.map(t=>`<td><span class="wm-dot ${team.tracks.includes(t)?'on':team.adj.includes(t)?'secondary':''}" aria-label="${team.tracks.includes(t)?'直接覆盖':team.adj.includes(t)?'相邻能力':'未标记'}"></span></td>`).join('')}</tr>`).join('') : '<tr><td colspan="8" class="wm-empty">没有符合条件的团队</td></tr>';
+        root.querySelectorAll('[data-team]').forEach(btn=>btn.addEventListener('click',()=>{state.team=btn.dataset.team;setView('map');renderMap();}));
+      };
+      const renderDetail = () => {
+        const team = teamById(state.team) || teams[0];
+        const linked = team.people.map(personById).filter(Boolean);
+        const facts = (team.facts||[]).map(([label,value])=>`<div class="wm-fact"><dt>${label}</dt><dd>${value}</dd></div>`).join('');
+        const schoolTags=teamSchoolIds(team.id).map(id=>schools.find(s=>s.id===id)).filter(Boolean);
+        root.querySelector('#wm-detail').innerHTML = `<div class="wm-detail-top"><div><h3>${team.name}</h3><span class="wm-role">${team.sub}</span></div><a class="btn" href="${team.url}" target="_blank" rel="noreferrer"><i data-lucide="external-link" aria-hidden="true"></i> 原始资料</a></div><div class="wm-tags">${schoolTags.map(s=>`<span class="viz-badge">${s.name}</span>`).join('')}${team.tracks.map(t=>`<span class="wm-tag">${t}</span>`).join('')}</div><p>${team.summary}</p>${facts?`<dl class="wm-facts">${facts}</dl>`:''}<h3>证据与边界</h3><ul class="wm-evidence">${team.evidence.map(x=>`<li>${x}</li>`).join('')}</ul><h3>核心人才</h3>${linked.length?`<div class="wm-roster">${linked.map(p=>`<button class="wm-person-chip" data-person="${p.id}" type="button">${p.name}</button>`).join('')}</div>`:'<p class="wm-note">官方尚未披露可核验的个人名单。</p>'}<h3 style="margin-top:14px">公开署名 / 关联名单</h3><div class="wm-roster">${team.roster.map(n=>`<span class="wm-tag">${n}</span>`).join('')}</div>${noteBoxHTML('wm-team-note',`team:${team.id}`,'团队备注','记录人才判断、待核实事项、联系进展或后续动作…')}`;
+        root.querySelectorAll('[data-person]').forEach(btn=>btn.addEventListener('click',()=>{const p=personById(btn.dataset.person);state.query=p.name.split(' · ')[0].toLowerCase();root.querySelector('#wm-search').value=p.name.split(' · ')[0];setView('people');renderPeople();}));
+        bindNoteBox(root.querySelector('#wm-detail [data-note-box]'));
+        if (globalThis.lucide) lucide.createIcons({attrs:{width:16,height:16}});
+      };
+      const renderMap = () => {
+        const visible = teams.filter(matches);
+        if (!visible.some(t=>t.id===state.team) && visible[0]) state.team=visible[0].id;
+        root.querySelector('#wm-team-list').innerHTML = visible.length ? visible.map(t=>`<button class="wm-team-row ${t.id===state.team?'is-selected':''}" type="button" data-map-team="${t.id}"><span class="wm-mark">${initials(t.name)}</span><span><strong>${t.name}</strong><small>${t.tracks.join(' · ')}</small></span><span class="wm-count">${t.roster.length}</span></button>`).join('') : '<div class="wm-empty">没有符合条件的团队</div>';
+        root.querySelectorAll('[data-map-team]').forEach(btn=>btn.addEventListener('click',()=>{state.team=btn.dataset.mapTeam;renderMap();}));
+        if (visible.length) renderDetail(); else root.querySelector('#wm-detail').innerHTML='<p class="wm-empty">调整筛选条件查看团队。</p>';
+      };
+      const renderPeople = () => {
+        const visible = people.filter(matches);
+        root.querySelector('#wm-result-count').textContent = `${visible.length} / ${people.length} 人`;
+        root.querySelector('#wm-people').innerHTML = visible.length ? visible.map(p=>{const team=teamById(p.team);const details=[['教育',p.education],['前序机构',p.previous],['核心贡献',p.contribution],['相关项目',p.projects],['跨项目关系',p.relation],['人才信号',p.signal],['社媒/主页',p.social]].filter(([,value])=>value).map(([label,value])=>`<dt>${label}</dt><dd>${value}</dd>`).join('');return `<article class="card wm-person"><div class="wm-person-head"><div class="wm-avatar">${initials(p.name)}</div><div><h3>${p.name}</h3><div class="wm-role">${p.role}</div></div></div><div class="wm-tags">${p.tracks.map(t=>`<span class="viz-badge">${t}</span>`).join('')}</div><p>${p.bio}</p>${details?`<dl class="wm-person-details">${details}</dl>`:''}<div class="wm-person-foot"><span class="wm-confidence ${p.level}">${levelText[p.level]}</span><a href="${p.url}" target="_blank" rel="noreferrer">查看证据</a></div><div class="wm-note">关联：${team?.name||''}</div></article>`}).join('') : '<div class="wm-empty">没有符合条件的人才档案</div>';
+      };
+      const renderCompanies = () => {
+        const visible=companyProfiles.filter(profile=>{const team=teamById(profile.teamId);const blob=[profile.business,profile.product,profile.customer,profile.model,profile.entry,profile.status].join(' ').toLowerCase();return team&&matches(team)&&(!state.query||blob.includes(state.query)||matches(team));});
+        root.querySelector('#wm-company-count').textContent=`${visible.length} / ${companyProfiles.length} 个业务节点`;
+        root.querySelector('#wm-company-grid').innerHTML=visible.length?visible.map(profile=>{const team=teamById(profile.teamId);return `<article class="card wm-company" style="--company-color:${profile.color}"><div class="wm-company-head"><div><h3>${team.name}</h3><span class="wm-role">${profile.business}</span></div><span class="wm-maturity ${team.level}">${levelText[team.level]}</span></div><dl class="wm-company-fields"><dt>产品 / 项目</dt><dd>${profile.product}</dd><dt>目标客户</dt><dd>${profile.customer}</dd><dt>模型作用</dt><dd>${profile.model}</dd><dt>商业化入口</dt><dd>${profile.entry}</dd><dt>公开状态</dt><dd>${profile.status}</dd></dl><div class="wm-person-foot"><button class="btn btn-ghost" type="button" data-company-team="${team.id}"><i data-lucide="network" aria-hidden="true"></i> 团队与人才</button><a href="${team.url}" target="_blank" rel="noreferrer">原始资料</a></div></article>`}).join(''):'<div class="wm-empty">当前筛选下没有公司业务节点</div>';
+        root.querySelectorAll('[data-company-team]').forEach(btn=>btn.addEventListener('click',()=>{state.team=btn.dataset.companyTeam;setView('map');renderMap();}));
+        if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+      };
+      const renderEvolution = () => {
+        root.querySelector('#wm-stage-list').innerHTML=evolutionStages.map(stage=>`<article class="wm-stage" style="--stage-color:${stage.color}"><h3>${stage.title}</h3><p>${stage.text}</p><div class="wm-stage-signals">${stage.signals.map(signal=>`<span class="viz-badge">${signal}</span>`).join('')}</div></article>`).join('');
+      };
+      const noteTargetLabel = key => {
+        if(key==='global')return '全局研究判断';
+        const [type,id]=key.split(':');
+        if(type==='team')return teamById(id)?.name||id;
+        if(type==='school')return `${schools.find(s=>s.id===id)?.name||id}流派`;
+        if(type==='layer')return `${capabilityLayers.find(layer=>layer.id===id)?.name||id}能力层`;
+        return key;
+      };
+      const renderNotebook = () => {
+        const keys=['global',...schools.map(s=>`school:${s.id}`),...capabilityLayers.map(layer=>`layer:${layer.id}`),...teams.map(t=>`team:${t.id}`)];
+        if(!keys.includes(state.noteTarget))state.noteTarget='global';
+        root.querySelector('#wm-note-index').innerHTML=keys.map(key=>{const note=getNote(key);return `<button type="button" data-note-target="${key}" class="${key===state.noteTarget?'is-selected':''}"><span class="wm-note-dot" style="--note-color:${noteColors[note.color]}"></span><span><strong>${noteTargetLabel(key)}</strong><span class="wm-note-preview">${escapeHTML(note.text||'暂无笔记')}</span></span><span>${note.text?'已记':'—'}</span></button>`}).join('');
+        root.querySelector('#wm-note-editor').innerHTML=noteBoxHTML('wm-workbench-note',state.noteTarget,noteTargetLabel(state.noteTarget),'记录赛道结论、人才优先级、风险、访谈问题或后续动作…');
+        bindNoteBox(root.querySelector('#wm-note-editor [data-note-box]'));
+        root.querySelectorAll('[data-note-target]').forEach(btn=>btn.addEventListener('click',()=>{state.noteTarget=btn.dataset.noteTarget;renderNotebook();}));
+        if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+      };
+      const setView = (view) => {
+        state.view=view;
+        ['schools','matrix','map','companies','evolution','people','notebook'].forEach(v=>{root.querySelector(`#wm-view-${v}`).hidden=v!==view;const b=root.querySelector(`[data-view="${v}"]`);b.classList.toggle('btn-primary',v===view);b.setAttribute('aria-selected',String(v===view));});
+        if(view==='notebook')renderNotebook();
+      };
+      const render = () => {renderSchools();renderMatrix();renderMap();renderCompanies();renderEvolution();renderPeople();if(state.view==='notebook')renderNotebook();};
+      root.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));
+      root.querySelector('#wm-search').addEventListener('input',e=>{state.query=e.target.value.trim().toLowerCase();render();});
+      root.querySelector('#wm-track').addEventListener('change',e=>{state.track=e.target.value;render();});
+      root.querySelector('#wm-level').addEventListener('change',e=>{state.level=e.target.value;render();});
+      render();
+      if (globalThis.lucide) lucide.createIcons({attrs:{width:16,height:16}});
+    })();
+  </script>
+</div>
