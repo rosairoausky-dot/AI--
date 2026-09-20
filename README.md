@@ -2,6 +2,13 @@
 
 中文世界模型公司、产品、团队与人才地图，覆盖交互式虚拟环境、生成式内容与视频、空间智能与 3D 世界、具身智能与机器人，以及记忆、控制、加速和空间布局等跨流派能力。
 
+## 在线访问
+
+- [直接打开世界模型人才地图（GitHub Pages）](https://rosairoausky-dot.github.io/AI--/outputs/world-model-talent-map.html)
+- [查看 HTML 源文件](https://github.com/rosairoausky-dot/AI--/blob/main/outputs/world-model-talent-map.html)
+
+如果 GitHub Pages 尚未启用，请先在仓库的 `Settings` → `Pages` 中选择 `main` 分支和根目录发布。网页也可以下载后直接用浏览器打开。
+
 ## Files
 
 - `outputs/world-model-talent-map.html`: standalone page for sharing or hosting.
